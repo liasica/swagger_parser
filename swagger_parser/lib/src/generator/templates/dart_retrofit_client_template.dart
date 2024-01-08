@@ -20,12 +20,13 @@ String dartRetrofitClientTemplate({
     '''
 ${generatedFileComment(markFileAsGenerated: markFileAsGenerated)}${_fileImport(restClient)}import 'package:dio/dio.dart' hide Headers;
 import 'package:retrofit/retrofit.dart';
-${dartImports(imports: restClient.imports, pathPrefix: '../models/')}
+import 'package:rider/api/api.dart';
+
 part '${name.toSnake}.g.dart';
 
-@RestApi()
+@restApi
 abstract class $name {
-  factory $name(Dio dio, {String? baseUrl}) = _$name;
+  factory $name(NetRequest dio, {String? baseUrl}) = _$name;
 ''',
   );
   for (final request in restClient.requests) {
@@ -43,7 +44,7 @@ String _toClientRequest(UniversalRequest request, String defaultContentType) {
     '''
 
   ${descriptionComment(request.description, tabForFirstLine: false, tab: '  ', end: '  ')}${request.isDeprecated ? "@Deprecated('This method is marked as deprecated')\n  " : ''}${_contentTypeHeader(request, defaultContentType)}@${request.requestType.name.toUpperCase()}('${request.route}')
-  Future<${request.isOriginalHttpResponse ? 'HttpResponse<$responseType>' : responseType}> ${request.name}(''',
+  Future<(${request.isOriginalHttpResponse ? 'HttpResponse<$responseType>' : responseType}?, DioException?)> ${request.name}(''',
   );
   if (request.parameters.isNotEmpty) {
     sb.write('{\n');

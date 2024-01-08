@@ -17,33 +17,33 @@ String dartRootClientTemplate({
   final className = name.toPascal;
 
   final title = openApiInfo.title;
-  final summary = openApiInfo.summary;
-  final description = openApiInfo.description;
   final version = openApiInfo.version;
-  final fullDescription = switch ((summary, description)) {
-    (null, null) => null,
-    (_, null) => summary,
-    (null, _) => description,
-    (_, _) => '$summary\n\n$description',
-  };
 
   final comment =
-      '${title ?? ''}${version != null ? ' `v$version`' : ''}${fullDescription != null ? '\n\n$fullDescription' : ''}';
+      '${title ?? ''}${version != null ? ' `v$version`' : ''}';
 
   return '''
 ${generatedFileComment(
     markFileAsGenerated: markFileAsGenerated,
-  )}import 'package:dio/dio.dart';
-${_clientsImport(clientsNames, postfix, putClientsInFolder: putClientsInFolder)}
-${descriptionComment(comment)}class $className {
-  $className(
-    Dio dio, {
+  )}import 'package:injectable/injectable.dart';
+import 'package:rider/core/injector.dart';
+import 'package:rider/api/api.dart';
+import 'package:rider/core/config/app_config.dart';
+
+${descriptionComment(comment)}
+@Singleton(order: -50)
+class $className {
+  $className({
+    NetRequest? dio,
     String? baseUrl,
-  })  : _dio = dio,
+  })  : _dio = dio ?? locator<NetRequest>(),
         _baseUrl = baseUrl;
 
-  final Dio _dio;
+  final NetRequest _dio;
   final String? _baseUrl;
+
+  @factoryMethod
+  static $className create() => $className(dio: NetRequest(), baseUrl: AppConfig.apiUrl);
 
 ${_privateFields(clientsNames, postfix)}
 
