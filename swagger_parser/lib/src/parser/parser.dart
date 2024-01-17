@@ -192,9 +192,7 @@ class OpenApiParser {
           .entries
           .firstOrNull;
       if (contentType == null) {
-        throw const ParserException(
-          'Response must always have a content type.',
-        );
+        return null;
       }
       final contentTypeValue = contentType.value as Map<String, dynamic>;
       if (contentTypeValue.isEmpty ||
@@ -781,7 +779,10 @@ class OpenApiParser {
   String _getTag(Map<String, dynamic> map) => _squashClients && _name != null
       ? _name!
       : map.containsKey(_tagsConst)
-          ? (map[_tagsConst] as List<dynamic>).first.toString().replaceAll(RegExp(r'[^\w\s]+'), '') // Remove special characters
+          ? (map[_tagsConst] as List<dynamic>)
+              .first
+              .toString()
+              .replaceAll(RegExp(r'[^\w\s]+'), '') // Remove special characters
           : 'client';
 
   /// Format `$ref` type
@@ -1087,9 +1088,7 @@ class OpenApiParser {
       // To detect is this entity is map or not
       final mapType = map[_typeConst].toString() == _objectConst &&
               map.containsKey(_additionalPropertiesConst) &&
-              (map[_additionalPropertiesConst] is Map<String, dynamic>) &&
-              !(map[_additionalPropertiesConst] as Map<String, dynamic>)
-                  .containsKey(_refConst)
+              (map[_additionalPropertiesConst] is Map<String, dynamic>)
           ? 'string'
           : null;
       final defaultValue = map[_defaultConst]?.toString();
