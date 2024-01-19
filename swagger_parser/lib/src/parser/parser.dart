@@ -419,6 +419,15 @@ class OpenApiParser {
       if (typeWithImport.import != null) {
         imports.add(typeWithImport.import!);
       }
+      final matches = RegExp('<(.*)>').allMatches(typeWithImport.type.type);
+      for (final match in matches) {
+        final sub = match.group(1);
+        if (sub != null) {
+          imports.add(sub);
+        }
+      }
+
+      if (typeWithImport.type.type.contains('<')) {}
       return UniversalType(
         type: typeWithImport.type.type,
         arrayDepth: typeWithImport.type.arrayDepth,
@@ -1043,7 +1052,7 @@ class OpenApiParser {
                 final item2Property =
                     item2Properties.entries.first.value as Map<String, dynamic>;
                 final item2Type = _findType(item2Property);
-                ofImport = '${item1Type.import}<${item2Type.import}>';
+                ofImport = item1Type.import;
                 ofType = item1Type.type.copyWith(
                     nullable: true,
                     type: '${item1Type.type.type}<${item2Type.type.type}>');
