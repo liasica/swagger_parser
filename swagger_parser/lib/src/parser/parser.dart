@@ -1019,6 +1019,38 @@ class OpenApiParser {
             }
           }
         }
+        // Find generic type in of two-element allOf
+        else if (map.containsKey(_allOfConst) && of.length == 2) {
+          final item1 = of[0];
+          final item2 = of[1];
+          if (item1 is Map<String, dynamic> &&
+              item2 is Map<String, dynamic> &&
+              item1.containsKey(_refConst) &&
+              item2.containsKey(_propertiesConst)) {
+            final item1Type = _findType(item1);
+            final item1Definition = (_definitionFileContent[_definitionsConst]
+                as Map<String, dynamic>)[_formatRef(item1)];
+            if (item1Type.import != null &&
+                item1Definition is Map<String, dynamic> &&
+                item1Definition.containsKey(_propertiesConst)) {
+              final item1Properties = item1Definition[_propertiesConst];
+              final item2Properties = item2[_propertiesConst];
+              if (item1Properties is Map<String, dynamic> &&
+                  item2Properties is Map<String, dynamic> &&
+                  item2Properties.entries.length == 1 &&
+                  item1Properties
+                      .containsKey(item2Properties.entries.first.key)) {
+                final item2Property =
+                    item2Properties.entries.first.value as Map<String, dynamic>;
+                final item2Type = _findType(item2Property);
+                ofImport = '${item1Type.import}<${item2Type.import}>';
+                ofType = item1Type.type.copyWith(
+                    nullable: true,
+                    type: '${item1Type.type.type}<${item2Type.type.type}>');
+              }
+            }
+          }
+        }
       }
 
       final type = ofType?.type ?? _objectConst;
