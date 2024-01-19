@@ -1,0 +1,211 @@
+{
+    "swagger": "2.0",
+    "basePath": "/",
+    "paths": {
+        "/rider/v1/branch/facility/{fid}": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Branch - 网点"
+                ],
+                "summary": "R2004 设施详情",
+                "operationId": "BranchFacility",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "骑手校验token",
+                        "name": "X-Rider-Token",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "设置标识",
+                        "name": "fid",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "number",
+                        "description": "经度",
+                        "name": "lng",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "number",
+                        "description": "纬度",
+                        "name": "lat",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "请求成功",
+                        "schema": {
+                            "$ref": "#/definitions/model.BranchFacilityRes"
+                        }
+                    }
+                }
+            }
+        },
+        "/rider/v1/assistance": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Assistance - 救援"
+                ],
+                "summary": "R5005 救援列表",
+                "operationId": "AssistanceList",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "骑手校验token",
+                        "name": "X-Rider-Token",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "当前页, 从1开始, 默认1",
+                        "name": "current",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "每页数据, 默认20",
+                        "name": "pageSize",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "请求成功",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/model.PaginationRes"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "items": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/model.AssistanceSimpleListRes"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "model.BranchFacilityRes": {
+            "type": "object",
+            "properties": {
+                "cabinet": {
+                    "description": "电柜, 当type=cabinet时存在, 根据序号显示 1号柜/2号柜 等, 当仅有一个电柜时, 电柜切换tab隐藏",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.BranchFacilityCabinet"
+                    }
+                },
+                "distance": {
+                    "description": "距离(前端处理: 超过1000米显示nKM)",
+                    "type": "number"
+                }
+            }
+        },
+        "model.BranchFacilityCabinetBattery": {
+            "type": "object",
+            "properties": {
+                "capacity": {
+                    "description": "容量, 单位AH",
+                    "type": "string"
+                },
+                "charging": {
+                    "description": "充电数量",
+                    "type": "integer"
+                },
+                "fully": {
+                    "description": "可换数量",
+                    "type": "integer"
+                },
+                "voltage": {
+                    "description": "电压, 单位V",
+                    "type": "string"
+                }
+            }
+        },
+        "model.BranchFacilityCabinet": {
+            "type": "object",
+            "properties": {
+                "batteries": {
+                    "description": "电池情况",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.BranchFacilityCabinetBattery"
+                    }
+                }
+            }
+        },
+        "model.AssistanceSimpleListRes": {
+            "type": "object",
+            "properties": {
+                "cost": {
+                    "description": "费用",
+                    "type": "number"
+                }
+            }
+        },
+        "model.Pagination": {
+            "type": "object",
+            "properties": {
+                "current": {
+                    "description": "当前页",
+                    "type": "integer"
+                },
+                "pages": {
+                    "description": "总页数",
+                    "type": "integer"
+                },
+                "total": {
+                    "description": "总条数",
+                    "type": "integer"
+                }
+            }
+        },
+        "model.PaginationRes": {
+            "type": "object",
+            "properties": {
+                "items": {
+                    "description": "返回数据"
+                },
+                "pagination": {
+                    "description": "分页属性",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/model.Pagination"
+                        }
+                    ]
+                }
+            }
+        }
+    }
+}
