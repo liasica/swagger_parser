@@ -27,8 +27,9 @@ ${generatedFileComment(
     markFileAsGenerated: markFileAsGenerated,
   )}import 'package:injectable/injectable.dart';
 import 'package:rider/core/injector.dart';
-import 'package:rider/api/api.dart';
 import 'package:rider/core/config/app_config.dart';
+${_clientsImport(clientsNames, postfix, putClientsInFolder: putClientsInFolder)}
+import '../net/net_request.dart';
 
 ${descriptionComment(comment)}
 @Singleton(order: -50)

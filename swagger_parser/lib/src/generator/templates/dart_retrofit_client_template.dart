@@ -20,11 +20,13 @@ String dartRetrofitClientTemplate({
     '''
 ${generatedFileComment(markFileAsGenerated: markFileAsGenerated)}${_fileImport(restClient)}import 'package:dio/dio.dart'${_hideHeaders(restClient, defaultContentType)};
 import 'package:retrofit/retrofit.dart';
-import 'package:rider/api/api.dart';
+import 'package:rider/core/config/app_config.dart';
+${dartImports(imports: restClient.imports, pathPrefix: '../models/')}
+import '../../net/net_request.dart';
 
 part '${name.toSnake}.g.dart';
 
-@restApi
+@RestApi(baseUrl: AppConfig.apiUrl)
 abstract class $name {
   factory $name(NetRequest dio, {String? baseUrl}) = _$name;
 ''',
