@@ -21,6 +21,7 @@ String dartRetrofitClientTemplate({
 ${generatedFileComment(markFileAsGenerated: markFileAsGenerated)}${_fileImport(restClient)}import 'package:dio/dio.dart'${_hideHeaders(restClient, defaultContentType)};
 import 'package:retrofit/retrofit.dart';
 import 'package:rider/core/config/app_config.dart';
+import 'package:rider/core/constants/constants.dart';
 ${dartImports(imports: restClient.imports, pathPrefix: '../models/')}
 import '../../net/net_request.dart';
 
@@ -46,22 +47,15 @@ String _toClientRequest(UniversalRequest request, String defaultContentType) {
     '''
 
   ${descriptionComment(request.description, tabForFirstLine: false, tab: '  ', end: '  ')}${request.isDeprecated ? "@Deprecated('This method is marked as deprecated')\n  " : ''}${_contentTypeHeader(request, defaultContentType)}@${request.requestType.name.toUpperCase()}('${request.route}')
-  Future<(${request.isOriginalHttpResponse ? 'HttpResponse<$responseType>' : responseType}?, DioException?)> ${request.name}(''',
+  Future<(${request.isOriginalHttpResponse ? 'HttpResponse<$responseType>' : responseType}?, DioException?)> ${request.name}({\n''',
   );
-  if (request.parameters.isNotEmpty) {
-    sb.write('{\n');
-  }
   final sortedByRequired = List<UniversalRequestType>.from(
     request.parameters.sorted((a, b) => a.type.compareTo(b.type)),
   );
   for (final parameter in sortedByRequired) {
     sb.write('${_toParameter(parameter)}\n');
   }
-  if (request.parameters.isNotEmpty) {
-    sb.write('  });\n');
-  } else {
-    sb.write(');\n');
-  }
+  sb.write('    @Header(AppConstants.headerToastVisible) ToastVisible? toastVisible = ToastVisible.yes,\n  });\n');
   return sb.toString();
 }
 
