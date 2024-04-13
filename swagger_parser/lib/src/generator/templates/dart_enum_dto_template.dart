@@ -79,10 +79,10 @@ $values
 ''';
 }
 
-String _constructor(String className) => '\n\n  const $className(this.json);\n';
+String _constructor(String className) => '\n\n  const $className(this.name);\n';
 
 String _jsonField(UniversalEnumClass enumClass) =>
-    '\n  final ${enumClass.type.toDartType()}? json;';
+    '\n  final ${enumClass.type.toDartType()}? name;';
 
 String _unkownEnumValue() => r'''
 
@@ -93,7 +93,7 @@ String _unkownEnumValue() => r'''
 String _fromJson(String className, UniversalEnumClass enumClass) => '''
 
   factory $className.fromJson(${enumClass.type.toDartType()} json) => values.firstWhere(
-        (e) => e.json == json,
+        (e) => e.name == json,
         orElse: () => \$unknown,
       );
 ''';
@@ -119,4 +119,4 @@ ${index != 0 ? '\n' : ''}${descriptionComment(item.description, tab: '  ')}${ind
 ${indentation(2)}${item.name.toCamel}''';
 
 String _toJson(UniversalEnumClass enumClass, String className) =>
-    '\n\n  ${enumClass.type.toDartType()}? toJson() => json;';
+    '\n\n  ${enumClass.type.toDartType()}? toJson() => name;';

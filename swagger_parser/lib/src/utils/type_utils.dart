@@ -137,7 +137,7 @@ Set<UniversalEnumItem> protectEnumItemsNames(Iterable<String> names) {
           'Incorrect name has been replaced. Original name: `$name`.'
         ),
       _ when dartKeywords.contains(name.toCamel) => (
-          '$_valueConst $name',
+          '${name}X',
           'The name has been replaced because it contains a keyword. Original name: `$name`.'
         ),
       _ => (name, null),
@@ -176,7 +176,7 @@ final _nameRegExp = RegExp(r'^[a-zA-Z_][a-zA-Z\d_]*$');
         'Incorrect name has been replaced. Original name: `$name`.'
       ),
     _ when dartKeywords.contains(name.toCamel) => (
-        '$name ${isEnum ? _enumConst : _valueConst}',
+        '${name}X',
         'The name has been replaced because it contains a keyword. Original name: `$name`.'
       ),
     _ => (name, null),
