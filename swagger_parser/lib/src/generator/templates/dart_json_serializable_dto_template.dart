@@ -1,11 +1,10 @@
 import 'package:collection/collection.dart';
 
-import '../../utils/case_utils.dart';
+import '../../parser/swagger_parser_core.dart';
+import '../../parser/utils/case_utils.dart';
+import '../../utils/base_utils.dart';
 import '../../utils/type_utils.dart';
-import '../../utils/utils.dart';
-import '../models/programming_language.dart';
-import '../models/universal_data_class.dart';
-import '../models/universal_type.dart';
+import '../model/programming_language.dart';
 
 /// Provides template for generating dart DTO using JSON serializable
 String dartJsonSerializableDtoTemplate(
@@ -14,9 +13,7 @@ String dartJsonSerializableDtoTemplate(
 }) {
   final className = dataClass.name.toPascal;
   return '''
-${generatedFileComment(
-    markFileAsGenerated: markFileAsGenerated,
-  )}${ioImport(dataClass)}import 'package:json_annotation/json_annotation.dart';
+${generatedFileComment(markFileAsGenerated: markFileAsGenerated)}${ioImport(dataClass)}import 'package:json_annotation/json_annotation.dart';
 ${dartImports(imports: dataClass.imports)}
 part '${dataClass.name.toSnake}.g.dart';
 
@@ -40,8 +37,9 @@ String _parametersInClass(List<UniversalType> parameters) => parameters
     .join();
 
 String _parametersInConstructor(List<UniversalType> parameters) {
-  final sortedByRequired =
-      List<UniversalType>.from(parameters.sorted((a, b) => a.compareTo(b)));
+  final sortedByRequired = List<UniversalType>.from(
+    parameters.sorted((a, b) => a.compareTo(b)),
+  );
   return sortedByRequired
       .map((e) => '\n    ${_required(e)}this.${e.name}${_defaultValue(e)},')
       .join();
@@ -52,7 +50,7 @@ String _jsonKey(UniversalType t) {
   if (t.jsonKey == null || t.name == t.jsonKey) {
     return '';
   }
-  return "  @JsonKey(name: '${t.jsonKey}')\n";
+  return "  @JsonKey(name: '${protectJsonKey(t.jsonKey)}')\n";
 }
 
 /// return required if isRequired
@@ -62,6 +60,6 @@ String _required(UniversalType t) =>
 /// return defaultValue if have
 String _defaultValue(UniversalType t) => t.defaultValue != null
     ? ' = '
-        '${t.arrayDepth > 0 ? 'const ' : ''}'
+        '${t.wrappingCollections.isNotEmpty ? 'const ' : ''}'
         '${t.enumType != null ? '${t.type}.${protectDefaultEnum(t.defaultValue)?.toCamel}' : protectDefaultValue(t.defaultValue, type: t.type)}'
     : '';

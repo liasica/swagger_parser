@@ -1,10 +1,9 @@
 import 'package:collection/collection.dart';
 
-import '../../utils/case_utils.dart';
-import '../../utils/type_utils.dart';
-import '../../utils/utils.dart';
-import '../models/json_serializer.dart';
-import '../models/universal_data_class.dart';
+import '../../parser/swagger_parser_core.dart';
+import '../../parser/utils/case_utils.dart';
+import '../../utils/base_utils.dart';
+import '../model/json_serializer.dart';
 import 'dart_import_dto_template.dart';
 
 /// Provides template for generating dart enum DTO
@@ -26,14 +25,8 @@ String dartEnumDtoTemplate(
     final className = enumClass.name.toPascal;
     final jsonParam = unknownEnumValue || enumsToJson;
 
-    final values = '${enumClass.items.mapIndexed(
-          (i, e) => _enumValue(
-            i,
-            enumClass.type,
-            e,
-            jsonParam: jsonParam,
-          ),
-        ).join(',\n')}${unknownEnumValue ? ',' : ';'}';
+    final values =
+        '${enumClass.items.mapIndexed((i, e) => _enumValue(i, enumClass.type, e, jsonParam: jsonParam)).join(',')}${unknownEnumValue ? ',' : ';'}';
     final unknownEnumValueStr = unknownEnumValue ? _unkownEnumValue() : '';
     final constructorStr = jsonParam ? _constructor(className) : '';
     final fromJsonStr = unknownEnumValue ? _fromJson(className, enumClass) : '';
@@ -41,9 +34,7 @@ String dartEnumDtoTemplate(
     final toJsonStr = enumsToJson ? _toJson(enumClass, className) : '';
 
     return '''
-${generatedFileComment(
-      markFileAsGenerated: markFileAsGenerated,
-    )}${dartImportDtoTemplate(jsonSerializer)}
+${generatedFileComment(markFileAsGenerated: markFileAsGenerated)}${dartImportDtoTemplate(jsonSerializer)}
 
 ${descriptionComment(enumClass.description)}@JsonEnum()
 enum $className {
@@ -66,9 +57,7 @@ String _dartEnumDartMappableTemplate(
       '${enumClass.items.mapIndexed((i, e) => _enumValueDartMappable(i, enumClass.type, e, jsonParam: jsonParam)).join(',\n')}${unknownEnumValue ? ',' : ';'}';
 
   return '''
-${generatedFileComment(
-    markFileAsGenerated: markFileAsGenerated,
-  )}${dartImportDtoTemplate(JsonSerializer.dartMappable)}
+${generatedFileComment(markFileAsGenerated: markFileAsGenerated)}${dartImportDtoTemplate(JsonSerializer.dartMappable)}
 
 part '${enumClass.name.toSnake}.mapper.dart';
 
@@ -81,11 +70,18 @@ $values
 
 String _constructor(String className) => '\n\n  const $className(this.name);\n';
 
-String _jsonField(UniversalEnumClass enumClass) =>
-    '\n  final ${enumClass.type.toDartType()}? name;';
+String _jsonField(UniversalEnumClass enumClass) {
+  final dartType = enumClass.type.toDartType();
+  return '\n  final $dartType${_nullableSign(dartType)} json;';
+}
+
+String _nullableSign(String dartType) {
+  final isDynamic = dartType == 'dynamic';
+  final nullableSign = isDynamic ? '' : '?';
+  return nullableSign;
+}
 
 String _unkownEnumValue() => r'''
-
 
   /// Default value for all unparsed values, allows backward compatibility when adding new values on the backend.
   $unknown(null);''';
@@ -103,20 +99,50 @@ String _enumValue(
   String type,
   UniversalEnumItem item, {
   required bool jsonParam,
-}) =>
-    '''
-${index != 0 ? '\n' : ''}${descriptionComment(item.description, tab: '  ')}  @JsonValue(${type == 'string' ? "'${item.jsonKey}'" : item.jsonKey})
-  ${item.name.toCamel}${jsonParam ? '(${type == 'string' ? "'${item.jsonKey}'" : item.jsonKey})' : ''}''';
+}) {
+  final protectedJsonKey = protectJsonKey(item.jsonKey);
+
+  final String? value;
+  if (type == 'string') {
+    value = "'$protectedJsonKey'";
+  } else {
+    if (protectedJsonKey?.isEmpty ?? true) {
+      value = "''";
+    } else {
+      if (protectedJsonKey == 'null') {
+        value = null;
+      } else {
+        final isNumber = RegExp(
+          r'^-?\d+(\.\d+)?$',
+        ).hasMatch(protectedJsonKey ?? '');
+        if (isNumber) {
+          value = protectedJsonKey;
+        } else {
+          value = "'$protectedJsonKey'";
+        }
+      }
+    }
+  }
+
+  final name = item.name.isEmpty ? 'empty' : item.name;
+  return '''
+${index != 0 ? '\n' : ''}${descriptionComment(item.description, tab: '  ')}  @JsonValue($value)
+  ${name.toCamel}${jsonParam ? '($value)' : ''}''';
+}
 
 String _enumValueDartMappable(
   int index,
   String type,
   UniversalEnumItem item, {
   required bool jsonParam,
-}) =>
-    '''
-${index != 0 ? '\n' : ''}${descriptionComment(item.description, tab: '  ')}${indentation(2)}@MappableValue(${type == 'string' ? "'${item.jsonKey}'" : item.jsonKey}) 
+}) {
+  final protectedJsonKey = protectJsonKey(item.jsonKey);
+  return '''
+${index != 0 ? '\n' : ''}${descriptionComment(item.description, tab: '  ')}${indentation(2)}@MappableValue(${type == 'string' ? "'$protectedJsonKey'" : protectedJsonKey}) 
 ${indentation(2)}${item.name.toCamel}''';
+}
 
-String _toJson(UniversalEnumClass enumClass, String className) =>
-    '\n\n  ${enumClass.type.toDartType()}? toJson() => name;';
+String _toJson(UniversalEnumClass enumClass, String className) {
+  final dartType = enumClass.type.toDartType();
+  return '\n\n  $dartType${_nullableSign(dartType)} toJson() => json;';
+}

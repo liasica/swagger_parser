@@ -1,10 +1,10 @@
 import 'package:collection/collection.dart';
 
-import '../../utils/case_utils.dart';
-import '../../utils/utils.dart';
-import '../models/programming_language.dart';
-import '../models/universal_data_class.dart';
-import '../models/universal_type.dart';
+import '../../parser/swagger_parser_core.dart';
+import '../../parser/utils/case_utils.dart';
+import '../../utils/base_utils.dart';
+import '../../utils/type_utils.dart';
+import '../model/programming_language.dart';
 
 /// Provides template for generating dart typedefs using JSON serializable
 String dartTypeDefTemplate(
@@ -17,9 +17,7 @@ String dartTypeDefTemplate(
   if (type == null) {
     return '';
   }
-  return '${generatedFileComment(
-    markFileAsGenerated: markFileAsGenerated,
-  )}${import != null ? "import '${import.toSnake}.dart';\n\n" : ''}'
+  return '${generatedFileComment(markFileAsGenerated: markFileAsGenerated)}${import != null ? "import '${import.toSnake}.dart';\n\n" : ''}'
       '${descriptionComment(dataClass.description)}'
       'typedef $className = ${type.toSuitableType(ProgrammingLanguage.dart)};\n';
 }

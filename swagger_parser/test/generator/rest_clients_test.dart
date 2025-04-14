@@ -1,19 +1,20 @@
-// ignore_for_file: avoid_redundant_argument_values
-
-import 'package:swagger_parser/src/generator/fill_controller.dart';
-import 'package:swagger_parser/src/generator/models/programming_language.dart';
-import 'package:swagger_parser/src/generator/models/universal_request.dart';
-import 'package:swagger_parser/src/generator/models/universal_request_type.dart';
-import 'package:swagger_parser/src/generator/models/universal_rest_client.dart';
-import 'package:swagger_parser/src/generator/models/universal_type.dart';
+import 'package:swagger_parser/src/generator/config/generator_config.dart';
+import 'package:swagger_parser/src/generator/generator/fill_controller.dart';
+import 'package:swagger_parser/src/generator/model/programming_language.dart';
+import 'package:swagger_parser/src/parser/swagger_parser_core.dart';
 import 'package:test/test.dart';
 
 void main() {
   group('Empty rest client', () {
     test('dart + retrofit', () async {
-      const restClient =
-          UniversalRestClient(name: 'Some', imports: {}, requests: []);
-      const fillController = FillController();
+      const restClient = UniversalRestClient(
+        name: 'Some',
+        imports: {},
+        requests: [],
+      );
+      const fillController = FillController(
+        config: GeneratorConfig(name: '', outputDirectory: ''),
+      );
       final filledContent = fillController.fillRestClientContent(restClient);
       const expectedContents = '''
 import 'package:dio/dio.dart';
@@ -26,14 +27,21 @@ abstract class SomeClient {
   factory SomeClient(Dio dio, {String? baseUrl}) = _SomeClient;
 }
 ''';
-      expect(filledContent.contents, expectedContents);
+      expect(filledContent.content, expectedContents);
     });
 
     test('kotlin + retrofit', () async {
-      const restClient =
-          UniversalRestClient(name: 'Some', imports: {}, requests: []);
+      const restClient = UniversalRestClient(
+        name: 'Some',
+        imports: {},
+        requests: [],
+      );
       const fillController = FillController(
-        programmingLanguage: ProgrammingLanguage.kotlin,
+        config: GeneratorConfig(
+          name: '',
+          outputDirectory: '',
+          language: ProgrammingLanguage.kotlin,
+        ),
       );
       final filledContent = fillController.fillRestClientContent(restClient);
       const expectedContents = '''
@@ -41,15 +49,24 @@ import retrofit2.http.*
 
 interface SomeClient {}
 ''';
-      expect(filledContent.contents, expectedContents);
+      expect(filledContent.content, expectedContents);
     });
   });
 
   group('Empty rest client with put clients in folder', () {
     test('dart + retrofit', () async {
-      const restClient =
-          UniversalRestClient(name: 'Some', imports: {}, requests: []);
-      const fillController = FillController(putClientsInFolder: true);
+      const restClient = UniversalRestClient(
+        name: 'Some',
+        imports: {},
+        requests: [],
+      );
+      const fillController = FillController(
+        config: GeneratorConfig(
+          name: '',
+          outputDirectory: '',
+          putClientsInFolder: true,
+        ),
+      );
       final filledContent = fillController.fillRestClientContent(restClient);
       const expectedContents = '''
 import 'package:dio/dio.dart';
@@ -62,15 +79,22 @@ abstract class SomeClient {
   factory SomeClient(Dio dio, {String? baseUrl}) = _SomeClient;
 }
 ''';
-      expect(filledContent.contents, expectedContents);
+      expect(filledContent.content, expectedContents);
     });
 
     test('kotlin + retrofit', () async {
-      const restClient =
-          UniversalRestClient(name: 'Some', imports: {}, requests: []);
+      const restClient = UniversalRestClient(
+        name: 'Some',
+        imports: {},
+        requests: [],
+      );
       const fillController = FillController(
-        programmingLanguage: ProgrammingLanguage.kotlin,
-        putClientsInFolder: true,
+        config: GeneratorConfig(
+          name: '',
+          outputDirectory: '',
+          language: ProgrammingLanguage.kotlin,
+          putClientsInFolder: true,
+        ),
       );
       final filledContent = fillController.fillRestClientContent(restClient);
       const expectedContents = '''
@@ -78,15 +102,24 @@ import retrofit2.http.*
 
 interface SomeClient {}
 ''';
-      expect(filledContent.contents, expectedContents);
+      expect(filledContent.content, expectedContents);
     });
   });
 
   group('Client postfix', () {
     test('dart + retrofit', () async {
-      const restClient =
-          UniversalRestClient(name: 'ClassName', imports: {}, requests: []);
-      const fillController = FillController(clientPostfix: 'Api');
+      const restClient = UniversalRestClient(
+        name: 'ClassName',
+        imports: {},
+        requests: [],
+      );
+      const fillController = FillController(
+        config: GeneratorConfig(
+          name: '',
+          outputDirectory: '',
+          clientPostfix: 'Api',
+        ),
+      );
       final filledContent = fillController.fillRestClientContent(restClient);
       const expectedContents = '''
 import 'package:dio/dio.dart';
@@ -99,15 +132,22 @@ abstract class ClassNameApi {
   factory ClassNameApi(Dio dio, {String? baseUrl}) = _ClassNameApi;
 }
 ''';
-      expect(filledContent.contents, expectedContents);
+      expect(filledContent.content, expectedContents);
     });
 
     test('kotlin + retrofit', () async {
-      const restClient =
-          UniversalRestClient(name: 'Some', imports: {}, requests: []);
+      const restClient = UniversalRestClient(
+        name: 'Some',
+        imports: {},
+        requests: [],
+      );
       const fillController = FillController(
-        programmingLanguage: ProgrammingLanguage.kotlin,
-        clientPostfix: 'Api',
+        config: GeneratorConfig(
+          name: '',
+          outputDirectory: '',
+          language: ProgrammingLanguage.kotlin,
+          clientPostfix: 'Api',
+        ),
       );
       final filledContent = fillController.fillRestClientContent(restClient);
       const expectedContents = '''
@@ -115,15 +155,24 @@ import retrofit2.http.*
 
 interface SomeApi {}
 ''';
-      expect(filledContent.contents, expectedContents);
+      expect(filledContent.content, expectedContents);
     });
   });
 
   group('Empty client postfix', () {
     test('dart + retrofit', () async {
-      const restClient =
-          UniversalRestClient(name: 'Some', imports: {}, requests: []);
-      const fillController = FillController(clientPostfix: '');
+      const restClient = UniversalRestClient(
+        name: 'Some',
+        imports: {},
+        requests: [],
+      );
+      const fillController = FillController(
+        config: GeneratorConfig(
+          name: '',
+          outputDirectory: '',
+          clientPostfix: '',
+        ),
+      );
       final filledContent = fillController.fillRestClientContent(restClient);
       const expectedContents = '''
 import 'package:dio/dio.dart';
@@ -136,15 +185,22 @@ abstract class Some {
   factory Some(Dio dio, {String? baseUrl}) = _Some;
 }
 ''';
-      expect(filledContent.contents, expectedContents);
+      expect(filledContent.content, expectedContents);
     });
 
     test('kotlin + retrofit', () async {
-      const restClient =
-          UniversalRestClient(name: 'Some', imports: {}, requests: []);
+      const restClient = UniversalRestClient(
+        name: 'Some',
+        imports: {},
+        requests: [],
+      );
       const fillController = FillController(
-        programmingLanguage: ProgrammingLanguage.kotlin,
-        clientPostfix: '',
+        config: GeneratorConfig(
+          name: '',
+          outputDirectory: '',
+          language: ProgrammingLanguage.kotlin,
+          clientPostfix: '',
+        ),
       );
       final filledContent = fillController.fillRestClientContent(restClient);
       const expectedContents = '''
@@ -152,7 +208,7 @@ import retrofit2.http.*
 
 interface Some {}
 ''';
-      expect(filledContent.contents, expectedContents);
+      expect(filledContent.content, expectedContents);
     });
   });
 
@@ -169,7 +225,9 @@ interface Some {}
         },
         requests: [],
       );
-      const fillController = FillController();
+      const fillController = FillController(
+        config: GeneratorConfig(name: '', outputDirectory: ''),
+      );
       final filledContent = fillController.fillRestClientContent(restClient);
       const expectedContents = '''
 import 'package:dio/dio.dart';
@@ -188,7 +246,7 @@ abstract class ClassNameClient {
   factory ClassNameClient(Dio dio, {String? baseUrl}) = _ClassNameClient;
 }
 ''';
-      expect(filledContent.contents, expectedContents);
+      expect(filledContent.content, expectedContents);
     });
     test('kotlin + retrofit', () async {
       // Imports in Kotlin are not supported yet. You can always add PR
@@ -210,7 +268,9 @@ abstract class ClassNameClient {
           ),
         ],
       );
-      const fillController = FillController();
+      const fillController = FillController(
+        config: GeneratorConfig(name: '', outputDirectory: ''),
+      );
       final filledContent = fillController.fillRestClientContent(restClient);
       const expectedContents = '''
 import 'package:dio/dio.dart';
@@ -226,7 +286,7 @@ abstract class ClassNameClient {
   Future<void> getRequest();
 }
 ''';
-      expect(filledContent.contents, expectedContents);
+      expect(filledContent.content, expectedContents);
     });
 
     test('kotlin + retrofit', () async {
@@ -244,7 +304,11 @@ abstract class ClassNameClient {
         ],
       );
       const fillController = FillController(
-        programmingLanguage: ProgrammingLanguage.kotlin,
+        config: GeneratorConfig(
+          name: '',
+          outputDirectory: '',
+          language: ProgrammingLanguage.kotlin,
+        ),
       );
       final filledContent = fillController.fillRestClientContent(restClient);
       const expectedContents = '''
@@ -255,7 +319,7 @@ interface ClassNameClient {
     suspend fun getRequest()
 }
 ''';
-      expect(filledContent.contents, expectedContents);
+      expect(filledContent.content, expectedContents);
     });
   });
 
@@ -330,7 +394,9 @@ interface ClassNameClient {
           ),
         ],
       );
-      const fillController = FillController();
+      const fillController = FillController(
+        config: GeneratorConfig(name: '', outputDirectory: ''),
+      );
       final filledContent = fillController.fillRestClientContent(restClient);
       const expectedContents = '''
 import 'package:dio/dio.dart';
@@ -370,7 +436,7 @@ abstract class ClassNameClient {
   Future<void> traceRequest();
 }
 ''';
-      expect(filledContent.contents, expectedContents);
+      expect(filledContent.content, expectedContents);
     });
 
     test('kotlin + retrofit', () async {
@@ -444,7 +510,11 @@ abstract class ClassNameClient {
         ],
       );
       const fillController = FillController(
-        programmingLanguage: ProgrammingLanguage.kotlin,
+        config: GeneratorConfig(
+          name: '',
+          outputDirectory: '',
+          language: ProgrammingLanguage.kotlin,
+        ),
       );
       final filledContent = fillController.fillRestClientContent(restClient);
       const expectedContents = '''
@@ -479,7 +549,7 @@ interface ClassNameClient {
     suspend fun traceRequest()
 }
 ''';
-      expect(filledContent.contents, expectedContents);
+      expect(filledContent.content, expectedContents);
     });
   });
 
@@ -500,19 +570,21 @@ interface ClassNameClient {
             name: 'getStringRequest',
             requestType: HttpRequestType.get,
             route: '/string',
-            returnType: UniversalType(type: 'string'),
+            returnType: UniversalType(type: 'string', isRequired: true),
             parameters: [],
           ),
           UniversalRequest(
             name: 'getBoolRequest',
             requestType: HttpRequestType.get,
             route: '/boolean',
-            returnType: UniversalType(type: 'boolean'),
+            returnType: UniversalType(type: 'boolean', isRequired: true),
             parameters: [],
           ),
         ],
       );
-      const fillController = FillController();
+      const fillController = FillController(
+        config: GeneratorConfig(name: '', outputDirectory: ''),
+      );
       final filledContent = fillController.fillRestClientContent(restClient);
       const expectedContents = '''
 import 'package:dio/dio.dart';
@@ -534,7 +606,7 @@ abstract class ClassNameClient {
   Future<bool> getBoolRequest();
 }
 ''';
-      expect(filledContent.contents, expectedContents);
+      expect(filledContent.content, expectedContents);
     });
 
     test('kotlin + retrofit', () async {
@@ -553,20 +625,24 @@ abstract class ClassNameClient {
             name: 'getStringRequest',
             requestType: HttpRequestType.get,
             route: '/string',
-            returnType: UniversalType(type: 'string'),
+            returnType: UniversalType(type: 'string', isRequired: true),
             parameters: [],
           ),
           UniversalRequest(
             name: 'getBoolRequest',
             requestType: HttpRequestType.get,
             route: '/boolean',
-            returnType: UniversalType(type: 'boolean'),
+            returnType: UniversalType(type: 'boolean', isRequired: true),
             parameters: [],
           ),
         ],
       );
       const fillController = FillController(
-        programmingLanguage: ProgrammingLanguage.kotlin,
+        config: GeneratorConfig(
+          name: '',
+          outputDirectory: '',
+          language: ProgrammingLanguage.kotlin,
+        ),
       );
       final filledContent = fillController.fillRestClientContent(restClient);
       const expectedContents = '''
@@ -583,7 +659,7 @@ interface ClassNameClient {
     suspend fun getBoolRequest(): Boolean
 }
 ''';
-      expect(filledContent.contents, expectedContents);
+      expect(filledContent.content, expectedContents);
     });
   });
 
@@ -603,8 +679,9 @@ interface ClassNameClient {
                 parameterType: HttpParameterType.query,
                 type: UniversalType(
                   type: 'string',
-                  arrayDepth: 1,
+                  wrappingCollections: [UniversalCollections.list],
                   name: 'list1',
+                  isRequired: true,
                 ),
                 name: 'list1',
               ),
@@ -612,8 +689,13 @@ interface ClassNameClient {
                 parameterType: HttpParameterType.body,
                 type: UniversalType(
                   type: 'string',
-                  arrayDepth: 3,
+                  wrappingCollections: [
+                    UniversalCollections.list,
+                    UniversalCollections.list,
+                    UniversalCollections.list,
+                  ],
                   name: 'list2',
+                  isRequired: true,
                 ),
               ),
             ],
@@ -622,12 +704,21 @@ interface ClassNameClient {
             name: 'listOfList',
             requestType: HttpRequestType.get,
             route: '/list-of-list',
-            returnType: UniversalType(type: 'string', arrayDepth: 2),
+            returnType: UniversalType(
+              type: 'string',
+              wrappingCollections: [
+                UniversalCollections.list,
+                UniversalCollections.list,
+              ],
+              isRequired: true,
+            ),
             parameters: [],
           ),
         ],
       );
-      const fillController = FillController();
+      const fillController = FillController(
+        config: GeneratorConfig(name: '', outputDirectory: ''),
+      );
       final filledContent = fillController.fillRestClientContent(restClient);
       const expectedContents = '''
 import 'package:dio/dio.dart';
@@ -649,7 +740,7 @@ abstract class ClassNameClient {
   Future<List<List<String>>> listOfList();
 }
 ''';
-      expect(filledContent.contents, expectedContents);
+      expect(filledContent.content, expectedContents);
     });
 
     test('kotlin + retrofit', () async {
@@ -667,8 +758,9 @@ abstract class ClassNameClient {
                 parameterType: HttpParameterType.query,
                 type: UniversalType(
                   type: 'string',
-                  arrayDepth: 1,
+                  wrappingCollections: [UniversalCollections.list],
                   name: 'list1',
+                  isRequired: true,
                 ),
                 name: 'list1',
               ),
@@ -676,8 +768,13 @@ abstract class ClassNameClient {
                 parameterType: HttpParameterType.body,
                 type: UniversalType(
                   type: 'string',
-                  arrayDepth: 3,
+                  wrappingCollections: [
+                    UniversalCollections.list,
+                    UniversalCollections.list,
+                    UniversalCollections.list,
+                  ],
                   name: 'list2',
+                  isRequired: true,
                 ),
               ),
             ],
@@ -686,13 +783,24 @@ abstract class ClassNameClient {
             name: 'listOfList',
             requestType: HttpRequestType.get,
             route: '/list-of-list',
-            returnType: UniversalType(type: 'string', arrayDepth: 2),
+            returnType: UniversalType(
+              type: 'string',
+              wrappingCollections: [
+                UniversalCollections.list,
+                UniversalCollections.list,
+              ],
+              isRequired: true,
+            ),
             parameters: [],
           ),
         ],
       );
       const fillController = FillController(
-        programmingLanguage: ProgrammingLanguage.kotlin,
+        config: GeneratorConfig(
+          name: '',
+          outputDirectory: '',
+          language: ProgrammingLanguage.kotlin,
+        ),
       );
       final filledContent = fillController.fillRestClientContent(restClient);
       const expectedContents = '''
@@ -709,7 +817,7 @@ interface ClassNameClient {
     suspend fun listOfList(): List<List<String>>
 }
 ''';
-      expect(filledContent.contents, expectedContents);
+      expect(filledContent.content, expectedContents);
     });
   });
 
@@ -723,18 +831,24 @@ interface ClassNameClient {
             name: 'getRequest',
             requestType: HttpRequestType.get,
             route: '/',
-            returnType: UniversalType(type: 'string'),
+            returnType: UniversalType(type: 'string', isRequired: true),
             parameters: [
               UniversalRequestType(
                 parameterType: HttpParameterType.query,
-                type: UniversalType(type: 'string', name: 'alex'),
+                type: UniversalType(
+                  type: 'string',
+                  name: 'alex',
+                  isRequired: true,
+                ),
                 name: 'name',
               ),
             ],
           ),
         ],
       );
-      const fillController = FillController();
+      const fillController = FillController(
+        config: GeneratorConfig(name: '', outputDirectory: ''),
+      );
       final filledContent = fillController.fillRestClientContent(restClient);
       const expectedContents = '''
 import 'package:dio/dio.dart';
@@ -752,7 +866,7 @@ abstract class ClassNameClient {
   });
 }
 ''';
-      expect(filledContent.contents, expectedContents);
+      expect(filledContent.content, expectedContents);
     });
 
     test('kotlin + retrofit', () async {
@@ -764,11 +878,15 @@ abstract class ClassNameClient {
             name: 'getRequest',
             requestType: HttpRequestType.get,
             route: '/',
-            returnType: UniversalType(type: 'string'),
+            returnType: UniversalType(type: 'string', isRequired: true),
             parameters: [
               UniversalRequestType(
                 parameterType: HttpParameterType.query,
-                type: UniversalType(type: 'string', name: 'alex'),
+                type: UniversalType(
+                  type: 'string',
+                  name: 'alex',
+                  isRequired: true,
+                ),
                 name: 'name',
               ),
             ],
@@ -776,7 +894,11 @@ abstract class ClassNameClient {
         ],
       );
       const fillController = FillController(
-        programmingLanguage: ProgrammingLanguage.kotlin,
+        config: GeneratorConfig(
+          name: '',
+          outputDirectory: '',
+          language: ProgrammingLanguage.kotlin,
+        ),
       );
       final filledContent = fillController.fillRestClientContent(restClient);
       const expectedContents = '''
@@ -789,11 +911,11 @@ interface ClassNameClient {
     ): String
 }
 ''';
-      expect(filledContent.contents, expectedContents);
+      expect(filledContent.content, expectedContents);
     });
   });
 
-  group('All request types of parameter', () {
+  group('All request types of parameter except extras type', () {
     test('dart + retrofit', () async {
       const restClient = UniversalRestClient(
         name: 'ClassName',
@@ -807,28 +929,42 @@ interface ClassNameClient {
             parameters: [
               UniversalRequestType(
                 parameterType: HttpParameterType.header,
-                type: UniversalType(type: 'string', name: 'token'),
+                type: UniversalType(
+                  type: 'string',
+                  name: 'token',
+                  isRequired: true,
+                ),
                 name: 'Authorization',
               ),
               UniversalRequestType(
                 parameterType: HttpParameterType.query,
-                type: UniversalType(type: 'string', name: 'alex'),
+                type: UniversalType(
+                  type: 'string',
+                  name: 'alex',
+                  isRequired: true,
+                ),
                 name: 'name',
               ),
               UniversalRequestType(
                 parameterType: HttpParameterType.path,
-                type: UniversalType(type: 'int', name: 'id'),
+                type: UniversalType(type: 'int', name: 'id', isRequired: true),
                 name: 'id',
               ),
               UniversalRequestType(
                 parameterType: HttpParameterType.body,
-                type: UniversalType(type: 'Another', name: 'another'),
+                type: UniversalType(
+                  type: 'Another',
+                  name: 'another',
+                  isRequired: true,
+                ),
               ),
             ],
           ),
         ],
       );
-      const fillController = FillController();
+      const fillController = FillController(
+        config: GeneratorConfig(name: '', outputDirectory: ''),
+      );
       final filledContent = fillController.fillRestClientContent(restClient);
       const expectedContents = '''
 import 'package:dio/dio.dart';
@@ -849,7 +985,7 @@ abstract class ClassNameClient {
   });
 }
 ''';
-      expect(filledContent.contents, expectedContents);
+      expect(filledContent.content, expectedContents);
     });
 
     test('kotlin + retrofit', () async {
@@ -865,29 +1001,45 @@ abstract class ClassNameClient {
             parameters: [
               UniversalRequestType(
                 parameterType: HttpParameterType.header,
-                type: UniversalType(type: 'string', name: 'token'),
+                type: UniversalType(
+                  type: 'string',
+                  name: 'token',
+                  isRequired: true,
+                ),
                 name: 'Authorization',
               ),
               UniversalRequestType(
                 parameterType: HttpParameterType.query,
-                type: UniversalType(type: 'string', name: 'alex'),
+                type: UniversalType(
+                  type: 'string',
+                  name: 'alex',
+                  isRequired: true,
+                ),
                 name: 'name',
               ),
               UniversalRequestType(
                 parameterType: HttpParameterType.path,
-                type: UniversalType(type: 'int', name: 'id'),
+                type: UniversalType(type: 'int', name: 'id', isRequired: true),
                 name: 'id',
               ),
               UniversalRequestType(
                 parameterType: HttpParameterType.body,
-                type: UniversalType(type: 'Another', name: 'another'),
+                type: UniversalType(
+                  type: 'Another',
+                  name: 'another',
+                  isRequired: true,
+                ),
               ),
             ],
           ),
         ],
       );
       const fillController = FillController(
-        programmingLanguage: ProgrammingLanguage.kotlin,
+        config: GeneratorConfig(
+          name: '',
+          outputDirectory: '',
+          language: ProgrammingLanguage.kotlin,
+        ),
       );
       final filledContent = fillController.fillRestClientContent(restClient);
       const expectedContents = '''
@@ -903,7 +1055,7 @@ interface ClassNameClient {
     )
 }
 ''';
-      expect(filledContent.contents, expectedContents);
+      expect(filledContent.content, expectedContents);
     });
   });
 
@@ -922,12 +1074,20 @@ interface ClassNameClient {
             parameters: [
               UniversalRequestType(
                 parameterType: HttpParameterType.header,
-                type: UniversalType(type: 'string', name: 'token'),
+                type: UniversalType(
+                  type: 'string',
+                  name: 'token',
+                  isRequired: true,
+                ),
                 name: 'Authorization',
               ),
               UniversalRequestType(
                 parameterType: HttpParameterType.part,
-                type: UniversalType(type: 'string', name: 'alex'),
+                type: UniversalType(
+                  type: 'string',
+                  name: 'alex',
+                  isRequired: false,
+                ),
                 name: 'name',
               ),
               UniversalRequestType(
@@ -936,17 +1096,26 @@ interface ClassNameClient {
                   type: 'string',
                   format: 'binary',
                   name: 'file',
+                  isRequired: true,
                 ),
                 name: 'file',
               ),
               UniversalRequestType(
                 parameterType: HttpParameterType.part,
-                type: UniversalType(type: 'file', name: 'secondFile'),
+                type: UniversalType(
+                  type: 'file',
+                  name: 'secondFile',
+                  isRequired: true,
+                ),
                 name: 'file2',
               ),
               UniversalRequestType(
                 parameterType: HttpParameterType.part,
-                type: UniversalType(type: 'boolean', name: 'parsed'),
+                type: UniversalType(
+                  type: 'boolean',
+                  name: 'parsed',
+                  isRequired: true,
+                ),
                 name: 'parsed-if',
               ),
             ],
@@ -955,20 +1124,27 @@ interface ClassNameClient {
             name: 'singleEntity',
             requestType: HttpRequestType.post,
             route: '/single',
-            returnType: UniversalType(type: 'boolean'),
+            returnType: UniversalType(type: 'boolean', isRequired: true),
             contentType: 'multipart/form-data',
             parameters: [
               UniversalRequestType(
                 parameterType: HttpParameterType.body,
-                type: UniversalType(type: 'AnotherFile', name: 'file'),
+                type: UniversalType(
+                  type: 'AnotherFile',
+                  name: 'file',
+                  isRequired: true,
+                ),
               ),
             ],
           ),
         ],
       );
-      const fillController = FillController();
+      const fillController = FillController(
+        config: GeneratorConfig(name: '', outputDirectory: ''),
+      );
       final filledContent = fillController.fillRestClientContent(restClient);
       const expectedContents = '''
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:dio/dio.dart';
@@ -986,10 +1162,10 @@ abstract class ClassNameClient {
   @POST('/send')
   Future<void> sendMultiPart({
     @Header('Authorization') required String token,
-    @Part(name: 'name') required String alex,
     @Part(name: 'file') required File file,
     @Part(name: 'file2') required File secondFile,
     @Part(name: 'parsed-if') required bool parsed,
+    @Part(name: 'name') String? alex,
   });
 
   @MultiPart()
@@ -999,7 +1175,7 @@ abstract class ClassNameClient {
   });
 }
 ''';
-      expect(filledContent.contents, expectedContents);
+      expect(filledContent.content, expectedContents);
     });
 
     test('kotlin + retrofit', () async {
@@ -1016,12 +1192,20 @@ abstract class ClassNameClient {
             parameters: [
               UniversalRequestType(
                 parameterType: HttpParameterType.header,
-                type: UniversalType(type: 'string', name: 'token'),
+                type: UniversalType(
+                  type: 'string',
+                  name: 'token',
+                  isRequired: true,
+                ),
                 name: 'Authorization',
               ),
               UniversalRequestType(
                 parameterType: HttpParameterType.part,
-                type: UniversalType(type: 'string', name: 'alex'),
+                type: UniversalType(
+                  type: 'string',
+                  name: 'alex',
+                  isRequired: false,
+                ),
                 name: 'name',
               ),
               UniversalRequestType(
@@ -1030,17 +1214,26 @@ abstract class ClassNameClient {
                   type: 'string',
                   format: 'binary',
                   name: 'file',
+                  isRequired: true,
                 ),
                 name: 'file',
               ),
               UniversalRequestType(
                 parameterType: HttpParameterType.part,
-                type: UniversalType(type: 'file', name: 'secondFile'),
+                type: UniversalType(
+                  type: 'file',
+                  name: 'secondFile',
+                  isRequired: true,
+                ),
                 name: 'file2',
               ),
               UniversalRequestType(
                 parameterType: HttpParameterType.part,
-                type: UniversalType(type: 'boolean', name: 'parsed'),
+                type: UniversalType(
+                  type: 'boolean',
+                  name: 'parsed',
+                  isRequired: true,
+                ),
                 name: 'parsed-if',
               ),
             ],
@@ -1049,19 +1242,27 @@ abstract class ClassNameClient {
             name: 'singleEntity',
             requestType: HttpRequestType.post,
             route: '/single',
-            returnType: UniversalType(type: 'boolean'),
+            returnType: UniversalType(type: 'boolean', isRequired: true),
             contentType: 'multipart/form-data',
             parameters: [
               UniversalRequestType(
                 parameterType: HttpParameterType.body,
-                type: UniversalType(type: 'AnotherFile', name: 'file'),
+                type: UniversalType(
+                  type: 'AnotherFile',
+                  name: 'file',
+                  isRequired: true,
+                ),
               ),
             ],
           ),
         ],
       );
       const fillController = FillController(
-        programmingLanguage: ProgrammingLanguage.kotlin,
+        config: GeneratorConfig(
+          name: '',
+          outputDirectory: '',
+          language: ProgrammingLanguage.kotlin,
+        ),
       );
       final filledContent = fillController.fillRestClientContent(restClient);
       const expectedContents = '''
@@ -1072,7 +1273,7 @@ interface ClassNameClient {
     @POST("/send")
     suspend fun sendMultiPart(
         @Header("Authorization") token: String,
-        @Part("name") alex: String,
+        @Part("name") alex: String?,
         @Part("file") file: MultipartBody.Part,
         @Part("file2") secondFile: MultipartBody.Part,
         @Part("parsed-if") parsed: Boolean,
@@ -1085,7 +1286,7 @@ interface ClassNameClient {
     ): Boolean
 }
 ''';
-      expect(filledContent.contents, expectedContents);
+      expect(filledContent.content, expectedContents);
     });
   });
 
@@ -1104,18 +1305,24 @@ interface ClassNameClient {
             parameters: [
               UniversalRequestType(
                 parameterType: HttpParameterType.header,
-                type: UniversalType(type: 'string', name: 'token'),
+                type: UniversalType(
+                  type: 'string',
+                  name: 'token',
+                  isRequired: true,
+                ),
                 name: 'Authorization',
               ),
               UniversalRequestType(
                 parameterType: HttpParameterType.body,
-                type: UniversalType(type: 'Lol', name: 'lol'),
+                type: UniversalType(type: 'Lol', name: 'lol', isRequired: true),
               ),
             ],
           ),
         ],
       );
-      const fillController = FillController();
+      const fillController = FillController(
+        config: GeneratorConfig(name: '', outputDirectory: ''),
+      );
       final filledContent = fillController.fillRestClientContent(restClient);
       const expectedContents = '''
 import 'package:dio/dio.dart';
@@ -1137,7 +1344,7 @@ abstract class ClassNameClient {
   });
 }
 ''';
-      expect(filledContent.contents, expectedContents);
+      expect(filledContent.content, expectedContents);
     });
 
     test('kotlin + retrofit', () async {
@@ -1154,19 +1361,27 @@ abstract class ClassNameClient {
             parameters: [
               UniversalRequestType(
                 parameterType: HttpParameterType.header,
-                type: UniversalType(type: 'string', name: 'token'),
+                type: UniversalType(
+                  type: 'string',
+                  name: 'token',
+                  isRequired: true,
+                ),
                 name: 'Authorization',
               ),
               UniversalRequestType(
                 parameterType: HttpParameterType.body,
-                type: UniversalType(type: 'Lol', name: 'lol'),
+                type: UniversalType(type: 'Lol', name: 'lol', isRequired: true),
               ),
             ],
           ),
         ],
       );
       const fillController = FillController(
-        programmingLanguage: ProgrammingLanguage.kotlin,
+        config: GeneratorConfig(
+          name: '',
+          outputDirectory: '',
+          language: ProgrammingLanguage.kotlin,
+        ),
       );
       final filledContent = fillController.fillRestClientContent(restClient);
       const expectedContents = '''
@@ -1181,7 +1396,7 @@ interface ClassNameClient {
     )
 }
 ''';
-      expect(filledContent.contents, expectedContents);
+      expect(filledContent.content, expectedContents);
     });
   });
 
@@ -1195,13 +1410,13 @@ interface ClassNameClient {
             name: 'getRequest',
             requestType: HttpRequestType.get,
             route: '/{id}',
-            returnType: UniversalType(type: 'string'),
+            returnType: UniversalType(type: 'string', isRequired: true),
             parameters: [
               UniversalRequestType(
                 parameterType: HttpParameterType.query,
                 type: UniversalType(
                   type: 'string',
-                  arrayDepth: 1,
+                  wrappingCollections: [UniversalCollections.nullableList],
                   name: 'list',
                   isRequired: false,
                 ),
@@ -1229,7 +1444,9 @@ interface ClassNameClient {
           ),
         ],
       );
-      const fillController = FillController();
+      const fillController = FillController(
+        config: GeneratorConfig(name: '', outputDirectory: ''),
+      );
       final filledContent = fillController.fillRestClientContent(restClient);
       const expectedContents = '''
 import 'package:dio/dio.dart';
@@ -1249,7 +1466,7 @@ abstract class ClassNameClient {
   });
 }
 ''';
-      expect(filledContent.contents, expectedContents);
+      expect(filledContent.content, expectedContents);
     });
 
     test('kotlin + retrofit', () async {
@@ -1261,13 +1478,13 @@ abstract class ClassNameClient {
             name: 'getRequest',
             requestType: HttpRequestType.get,
             route: '/{id}',
-            returnType: UniversalType(type: 'string'),
+            returnType: UniversalType(type: 'string', isRequired: true),
             parameters: [
               UniversalRequestType(
                 parameterType: HttpParameterType.query,
                 type: UniversalType(
                   type: 'string',
-                  arrayDepth: 1,
+                  wrappingCollections: [UniversalCollections.nullableList],
                   name: 'list',
                   isRequired: false,
                 ),
@@ -1296,7 +1513,11 @@ abstract class ClassNameClient {
         ],
       );
       const fillController = FillController(
-        programmingLanguage: ProgrammingLanguage.kotlin,
+        config: GeneratorConfig(
+          name: '',
+          outputDirectory: '',
+          language: ProgrammingLanguage.kotlin,
+        ),
       );
       final filledContent = fillController.fillRestClientContent(restClient);
       const expectedContents = '''
@@ -1311,7 +1532,7 @@ interface ClassNameClient {
     ): String
 }
 ''';
-      expect(filledContent.contents, expectedContents);
+      expect(filledContent.content, expectedContents);
     });
   });
 
@@ -1333,6 +1554,7 @@ interface ClassNameClient {
                   type: 'string',
                   name: 'token',
                   defaultValue: 'message123',
+                  isRequired: true,
                 ),
                 name: 'Authorization',
               ),
@@ -1343,6 +1565,7 @@ interface ClassNameClient {
                   format: 'double',
                   name: 'age',
                   defaultValue: '17',
+                  isRequired: true,
                 ),
                 name: 'age',
               ),
@@ -1352,6 +1575,7 @@ interface ClassNameClient {
                   type: 'boolean',
                   name: 'adult',
                   defaultValue: 'false',
+                  isRequired: true,
                 ),
                 name: 'adult',
               ),
@@ -1362,6 +1586,7 @@ interface ClassNameClient {
                   name: 'unit',
                   defaultValue: 'CELSIUS',
                   enumType: 'string',
+                  isRequired: true,
                 ),
                 name: 'unit',
               ),
@@ -1372,6 +1597,7 @@ interface ClassNameClient {
                   name: 'soma',
                   defaultValue: '1',
                   enumType: 'int',
+                  isRequired: true,
                 ),
                 name: 'soma',
               ),
@@ -1379,7 +1605,9 @@ interface ClassNameClient {
           ),
         ],
       );
-      const fillController = FillController();
+      const fillController = FillController(
+        config: GeneratorConfig(name: '', outputDirectory: ''),
+      );
       final filledContent = fillController.fillRestClientContent(restClient);
       const expectedContents = '''
 import 'package:dio/dio.dart';
@@ -1404,7 +1632,7 @@ abstract class ClassNameClient {
   });
 }
 ''';
-      expect(filledContent.contents, expectedContents);
+      expect(filledContent.content, expectedContents);
     });
 
     test('kotlin + retrofit', () async {
@@ -1424,6 +1652,7 @@ abstract class ClassNameClient {
                   type: 'string',
                   name: 'token',
                   defaultValue: 'message123',
+                  isRequired: true,
                 ),
                 name: 'Authorization',
               ),
@@ -1434,6 +1663,7 @@ abstract class ClassNameClient {
                   format: 'double',
                   name: 'age',
                   defaultValue: '17',
+                  isRequired: true,
                 ),
                 name: 'age',
               ),
@@ -1443,6 +1673,7 @@ abstract class ClassNameClient {
                   type: 'boolean',
                   name: 'adult',
                   defaultValue: 'false',
+                  isRequired: true,
                 ),
                 name: 'adult',
               ),
@@ -1453,6 +1684,7 @@ abstract class ClassNameClient {
                   name: 'unit',
                   defaultValue: 'CELSIUS',
                   enumType: 'string',
+                  isRequired: true,
                 ),
                 name: 'unit',
               ),
@@ -1463,6 +1695,7 @@ abstract class ClassNameClient {
                   name: 'soma',
                   defaultValue: '1',
                   enumType: 'int',
+                  isRequired: true,
                 ),
                 name: 'soma',
               ),
@@ -1471,7 +1704,11 @@ abstract class ClassNameClient {
         ],
       );
       const fillController = FillController(
-        programmingLanguage: ProgrammingLanguage.kotlin,
+        config: GeneratorConfig(
+          name: '',
+          outputDirectory: '',
+          language: ProgrammingLanguage.kotlin,
+        ),
       );
       final filledContent = fillController.fillRestClientContent(restClient);
       const expectedContents = '''
@@ -1488,7 +1725,7 @@ interface ClassNameClient {
     )
 }
 ''';
-      expect(filledContent.contents, expectedContents);
+      expect(filledContent.content, expectedContents);
     });
 
     test('Dart + retrofit nullability of request parameters', () async {
@@ -1500,16 +1737,24 @@ interface ClassNameClient {
             name: 'getRequest',
             requestType: HttpRequestType.get,
             route: '/request',
-            returnType: UniversalType(type: 'string', nullable: true),
+            returnType: UniversalType(
+              type: 'string',
+              nullable: true,
+              isRequired: false,
+            ),
             parameters: [
               UniversalRequestType(
                 parameterType: HttpParameterType.query,
                 type: UniversalType(
                   type: 'string',
-                  arrayDepth: 4,
+                  wrappingCollections: [
+                    UniversalCollections.nullableList,
+                    UniversalCollections.list,
+                    UniversalCollections.list,
+                    UniversalCollections.list,
+                  ],
                   name: 'deepList',
                   isRequired: false,
-                  nullable: true,
                 ),
                 name: 'deepArrayNullable',
               ),
@@ -1519,13 +1764,18 @@ interface ClassNameClient {
             name: 'getRequest2',
             requestType: HttpRequestType.get,
             route: '/request2',
-            returnType: UniversalType(type: 'string', nullable: false),
+            returnType: UniversalType(type: 'string', isRequired: true),
             parameters: [
               UniversalRequestType(
                 parameterType: HttpParameterType.query,
                 type: UniversalType(
                   type: 'string',
-                  arrayDepth: 4,
+                  wrappingCollections: [
+                    UniversalCollections.nullableList,
+                    UniversalCollections.list,
+                    UniversalCollections.list,
+                    UniversalCollections.list,
+                  ],
                   name: 'deepList',
                   isRequired: false,
                   nullable: true,
@@ -1536,7 +1786,9 @@ interface ClassNameClient {
           ),
         ],
       );
-      const fillController = FillController();
+      const fillController = FillController(
+        config: GeneratorConfig(name: '', outputDirectory: ''),
+      );
       final filledContent = fillController.fillRestClientContent(restClient);
       const expectedContents = '''
 import 'package:dio/dio.dart';
@@ -1555,11 +1807,11 @@ abstract class ClassNameClient {
 
   @GET('/request2')
   Future<String> getRequest2({
-    @Query('deepArrayNullable') List<List<List<List<String>>>>? deepList,
+    @Query('deepArrayNullable') List<List<List<List<String?>>>>? deepList,
   });
 }
 ''';
-      expect(filledContent.contents, expectedContents);
+      expect(filledContent.content, expectedContents);
     });
 
     test('dart + retrofit nullable parameters', () async {
@@ -1571,16 +1823,20 @@ abstract class ClassNameClient {
             name: 'getRequest',
             requestType: HttpRequestType.get,
             route: '/request',
-            returnType: UniversalType(type: 'string'),
+            returnType: UniversalType(type: 'string', isRequired: true),
             parameters: [
               UniversalRequestType(
                 parameterType: HttpParameterType.query,
                 type: UniversalType(
                   type: 'string',
-                  arrayDepth: 4,
+                  wrappingCollections: [
+                    UniversalCollections.nullableList,
+                    UniversalCollections.list,
+                    UniversalCollections.list,
+                    UniversalCollections.list,
+                  ],
                   name: 'list1',
                   isRequired: false,
-                  nullable: true,
                 ),
                 name: 'deepArrayNullable',
               ),
@@ -1600,7 +1856,6 @@ abstract class ClassNameClient {
                   type: 'string',
                   name: 'list3',
                   isRequired: true,
-                  nullable: false,
                 ),
                 name: 'requiredButNotNullable',
               ),
@@ -1610,7 +1865,6 @@ abstract class ClassNameClient {
                   type: 'string',
                   name: 'list4',
                   isRequired: false,
-                  nullable: false,
                 ),
                 name: 'notRequiredAndNotNullable',
               ),
@@ -1628,7 +1882,9 @@ abstract class ClassNameClient {
           ),
         ],
       );
-      const fillController = FillController();
+      const fillController = FillController(
+        config: GeneratorConfig(name: '', outputDirectory: ''),
+      );
       final filledContent = fillController.fillRestClientContent(restClient);
       const expectedContents = '''
 import 'package:dio/dio.dart';
@@ -1650,7 +1906,7 @@ abstract class ClassNameClient {
   });
 }
 ''';
-      expect(filledContent.contents, expectedContents);
+      expect(filledContent.content, expectedContents);
     });
 
     test('Kotlin nullability of request parameters', () async {
@@ -1662,16 +1918,24 @@ abstract class ClassNameClient {
             name: 'getRequest',
             requestType: HttpRequestType.get,
             route: '/request',
-            returnType: UniversalType(type: 'string', nullable: true),
+            returnType: UniversalType(
+              type: 'string',
+              nullable: true,
+              isRequired: true,
+            ),
             parameters: [
               UniversalRequestType(
                 parameterType: HttpParameterType.query,
                 type: UniversalType(
                   type: 'string',
-                  arrayDepth: 4,
+                  wrappingCollections: [
+                    UniversalCollections.nullableList,
+                    UniversalCollections.list,
+                    UniversalCollections.list,
+                    UniversalCollections.list,
+                  ],
                   name: 'deepList',
-                  isRequired: false,
-                  nullable: true,
+                  isRequired: true,
                 ),
                 name: 'deepArrayNullable',
               ),
@@ -1681,16 +1945,20 @@ abstract class ClassNameClient {
             name: 'getRequest2',
             requestType: HttpRequestType.get,
             route: '/request2',
-            returnType: UniversalType(type: 'string', nullable: false),
+            returnType: UniversalType(type: 'string', isRequired: true),
             parameters: [
               UniversalRequestType(
                 parameterType: HttpParameterType.query,
                 type: UniversalType(
                   type: 'string',
-                  arrayDepth: 4,
+                  wrappingCollections: [
+                    UniversalCollections.nullableList,
+                    UniversalCollections.list,
+                    UniversalCollections.list,
+                    UniversalCollections.list,
+                  ],
                   name: 'deepList',
-                  isRequired: false,
-                  nullable: true,
+                  isRequired: true,
                 ),
                 name: 'deepArrayNullable',
               ),
@@ -1699,7 +1967,11 @@ abstract class ClassNameClient {
         ],
       );
       const fillController = FillController(
-        programmingLanguage: ProgrammingLanguage.kotlin,
+        config: GeneratorConfig(
+          name: '',
+          outputDirectory: '',
+          language: ProgrammingLanguage.kotlin,
+        ),
       );
       final filledContent = fillController.fillRestClientContent(restClient);
       const expectedContents = '''
@@ -1717,7 +1989,7 @@ interface ClassNameClient {
     ): String
 }
 ''';
-      expect(filledContent.contents, expectedContents);
+      expect(filledContent.content, expectedContents);
     });
 
     test('kotlin nullable parameters', () async {
@@ -1729,16 +2001,20 @@ interface ClassNameClient {
             name: 'getRequest',
             requestType: HttpRequestType.get,
             route: '/request',
-            returnType: UniversalType(type: 'string'),
+            returnType: UniversalType(type: 'string', isRequired: true),
             parameters: [
               UniversalRequestType(
                 parameterType: HttpParameterType.query,
                 type: UniversalType(
                   type: 'string',
-                  arrayDepth: 4,
+                  wrappingCollections: [
+                    UniversalCollections.nullableList,
+                    UniversalCollections.list,
+                    UniversalCollections.list,
+                    UniversalCollections.list,
+                  ],
                   name: 'list1',
                   isRequired: false,
-                  nullable: true,
                 ),
                 name: 'deepArrayNullable',
               ),
@@ -1758,7 +2034,6 @@ interface ClassNameClient {
                   type: 'string',
                   name: 'list3',
                   isRequired: true,
-                  nullable: false,
                 ),
                 name: 'requiredButNotNullable',
               ),
@@ -1768,7 +2043,6 @@ interface ClassNameClient {
                   type: 'string',
                   name: 'list4',
                   isRequired: false,
-                  nullable: false,
                 ),
                 name: 'notRequiredAndNotNullable',
               ),
@@ -1787,7 +2061,11 @@ interface ClassNameClient {
         ],
       );
       const fillController = FillController(
-        programmingLanguage: ProgrammingLanguage.kotlin,
+        config: GeneratorConfig(
+          name: '',
+          outputDirectory: '',
+          language: ProgrammingLanguage.kotlin,
+        ),
       );
       final filledContent = fillController.fillRestClientContent(restClient);
       const expectedContents = '''
@@ -1804,7 +2082,223 @@ interface ClassNameClient {
     ): String
 }
 ''';
-      expect(filledContent.contents, expectedContents);
+      expect(filledContent.content, expectedContents);
+    });
+  });
+
+  group('One empty request with @Extras option for dart', () {
+    test('dart + retrofit', () async {
+      const restClient = UniversalRestClient(
+        name: 'ClassName',
+        imports: {},
+        requests: [
+          UniversalRequest(
+            name: 'getRequest',
+            requestType: HttpRequestType.get,
+            route: '/{id}',
+            returnType: null,
+            parameters: [],
+          ),
+        ],
+      );
+      const fillController = FillController(
+        config: GeneratorConfig(
+          name: '',
+          outputDirectory: '',
+          extrasParameterByDefault: true,
+        ),
+      );
+      final filledContent = fillController.fillRestClientContent(restClient);
+      const expectedContents = '''
+import 'package:dio/dio.dart';
+import 'package:retrofit/retrofit.dart';
+
+part 'class_name_client.g.dart';
+
+@RestApi()
+abstract class ClassNameClient {
+  factory ClassNameClient(Dio dio, {String? baseUrl}) = _ClassNameClient;
+
+  @GET('/{id}')
+  Future<void> getRequest({
+    @Extras() Map<String, dynamic>? extras,
+  });
+}
+''';
+      expect(filledContent.content, expectedContents);
+    });
+
+    test('kotlin + retrofit', () async {
+      const restClient = UniversalRestClient(
+        name: 'ClassName',
+        imports: {},
+        requests: [],
+      );
+      const fillController = FillController(
+        config: GeneratorConfig(
+          name: '',
+          outputDirectory: '',
+          language: ProgrammingLanguage.kotlin,
+          extrasParameterByDefault: true,
+        ),
+      );
+      final filledContent = fillController.fillRestClientContent(restClient);
+      const expectedContents = '''
+import retrofit2.http.*
+
+interface ClassNameClient {}
+''';
+      expect(filledContent.content, expectedContents);
+    });
+  });
+
+  group('All request types of parameter with @Extras option for dart', () {
+    test('dart + retrofit', () async {
+      const restClient = UniversalRestClient(
+        name: 'ClassName',
+        imports: {},
+        requests: [
+          UniversalRequest(
+            name: 'getRequest',
+            requestType: HttpRequestType.get,
+            route: '/{id}',
+            returnType: null,
+            parameters: [
+              UniversalRequestType(
+                parameterType: HttpParameterType.header,
+                type: UniversalType(
+                  type: 'string',
+                  name: 'token',
+                  isRequired: true,
+                ),
+                name: 'Authorization',
+              ),
+              UniversalRequestType(
+                parameterType: HttpParameterType.query,
+                type: UniversalType(
+                  type: 'string',
+                  name: 'alex',
+                  isRequired: true,
+                ),
+                name: 'name',
+              ),
+              UniversalRequestType(
+                parameterType: HttpParameterType.path,
+                type: UniversalType(type: 'int', name: 'id', isRequired: true),
+                name: 'id',
+              ),
+              UniversalRequestType(
+                parameterType: HttpParameterType.body,
+                type: UniversalType(
+                  type: 'Another',
+                  name: 'another',
+                  isRequired: true,
+                ),
+              ),
+            ],
+          ),
+        ],
+      );
+      const fillController = FillController(
+        config: GeneratorConfig(
+          name: '',
+          outputDirectory: '',
+          extrasParameterByDefault: true,
+        ),
+      );
+      final filledContent = fillController.fillRestClientContent(restClient);
+      const expectedContents = '''
+import 'package:dio/dio.dart';
+import 'package:retrofit/retrofit.dart';
+
+part 'class_name_client.g.dart';
+
+@RestApi()
+abstract class ClassNameClient {
+  factory ClassNameClient(Dio dio, {String? baseUrl}) = _ClassNameClient;
+
+  @GET('/{id}')
+  Future<void> getRequest({
+    @Header('Authorization') required String token,
+    @Query('name') required String alex,
+    @Path('id') required int id,
+    @Body() required Another another,
+    @Extras() Map<String, dynamic>? extras,
+  });
+}
+''';
+      expect(filledContent.content, expectedContents);
+    });
+
+    test('kotlin + retrofit', () async {
+      const restClient = UniversalRestClient(
+        name: 'ClassName',
+        imports: {},
+        requests: [
+          UniversalRequest(
+            name: 'getRequest',
+            requestType: HttpRequestType.get,
+            route: '/{id}',
+            returnType: null,
+            parameters: [
+              UniversalRequestType(
+                parameterType: HttpParameterType.header,
+                type: UniversalType(
+                  type: 'string',
+                  name: 'token',
+                  isRequired: true,
+                ),
+                name: 'Authorization',
+              ),
+              UniversalRequestType(
+                parameterType: HttpParameterType.query,
+                type: UniversalType(
+                  type: 'string',
+                  name: 'alex',
+                  isRequired: true,
+                ),
+                name: 'name',
+              ),
+              UniversalRequestType(
+                parameterType: HttpParameterType.path,
+                type: UniversalType(type: 'int', name: 'id', isRequired: true),
+                name: 'id',
+              ),
+              UniversalRequestType(
+                parameterType: HttpParameterType.body,
+                type: UniversalType(
+                  type: 'Another',
+                  name: 'another',
+                  isRequired: true,
+                ),
+              ),
+            ],
+          ),
+        ],
+      );
+      const fillController = FillController(
+        config: GeneratorConfig(
+          name: '',
+          outputDirectory: '',
+          language: ProgrammingLanguage.kotlin,
+          extrasParameterByDefault: true,
+        ),
+      );
+      final filledContent = fillController.fillRestClientContent(restClient);
+      const expectedContents = '''
+import retrofit2.http.*
+
+interface ClassNameClient {
+    @GET("/{id}")
+    suspend fun getRequest(
+        @Header("Authorization") token: String,
+        @Query("name") alex: String,
+        @Path("id") id: int,
+        @Body another: Another,
+    )
+}
+''';
+      expect(filledContent.content, expectedContents);
     });
   });
 
@@ -1824,7 +2318,9 @@ interface ClassNameClient {
           ),
         ],
       );
-      const fillController = FillController();
+      const fillController = FillController(
+        config: GeneratorConfig(name: '', outputDirectory: ''),
+      );
       final filledContent = fillController.fillRestClientContent(restClient);
       const expectedContents = '''
 import 'package:dio/dio.dart';
@@ -1843,7 +2339,7 @@ abstract class ClassNameClient {
   Future<void> some();
 }
 ''';
-      expect(filledContent.contents, expectedContents);
+      expect(filledContent.content, expectedContents);
     });
 
     test('kotlin + retrofit', () async {
@@ -1862,7 +2358,11 @@ abstract class ClassNameClient {
         ],
       );
       const fillController = FillController(
-        programmingLanguage: ProgrammingLanguage.kotlin,
+        config: GeneratorConfig(
+          name: '',
+          outputDirectory: '',
+          language: ProgrammingLanguage.kotlin,
+        ),
       );
       final filledContent = fillController.fillRestClientContent(restClient);
       const expectedContents = '''
@@ -1874,7 +2374,7 @@ interface ClassNameClient {
     suspend fun some()
 }
 ''';
-      expect(filledContent.contents, expectedContents);
+      expect(filledContent.content, expectedContents);
     });
 
     test('Dart + retrofit nullability of request parameters', () async {
@@ -1886,16 +2386,24 @@ interface ClassNameClient {
             name: 'getRequest',
             requestType: HttpRequestType.get,
             route: '/request',
-            returnType: UniversalType(type: 'string', nullable: true),
+            returnType: UniversalType(
+              type: 'string',
+              nullable: true,
+              isRequired: true,
+            ),
             parameters: [
               UniversalRequestType(
                 parameterType: HttpParameterType.query,
                 type: UniversalType(
                   type: 'string',
-                  arrayDepth: 4,
+                  wrappingCollections: [
+                    UniversalCollections.nullableList,
+                    UniversalCollections.list,
+                    UniversalCollections.list,
+                    UniversalCollections.list,
+                  ],
                   name: 'deepList',
                   isRequired: false,
-                  nullable: true,
                 ),
                 name: 'deepArrayNullable',
               ),
@@ -1905,16 +2413,20 @@ interface ClassNameClient {
             name: 'getRequest2',
             requestType: HttpRequestType.get,
             route: '/request2',
-            returnType: UniversalType(type: 'string', nullable: false),
+            returnType: UniversalType(type: 'string', isRequired: true),
             parameters: [
               UniversalRequestType(
                 parameterType: HttpParameterType.query,
                 type: UniversalType(
                   type: 'string',
-                  arrayDepth: 4,
+                  wrappingCollections: [
+                    UniversalCollections.nullableList,
+                    UniversalCollections.list,
+                    UniversalCollections.list,
+                    UniversalCollections.list,
+                  ],
                   name: 'deepList',
                   isRequired: false,
-                  nullable: true,
                 ),
                 name: 'deepArrayNullable',
               ),
@@ -1922,7 +2434,9 @@ interface ClassNameClient {
           ),
         ],
       );
-      const fillController = FillController();
+      const fillController = FillController(
+        config: GeneratorConfig(name: '', outputDirectory: ''),
+      );
       final filledContent = fillController.fillRestClientContent(restClient);
       const expectedContents = '''
 import 'package:dio/dio.dart';
@@ -1945,7 +2459,7 @@ abstract class ClassNameClient {
   });
 }
 ''';
-      expect(filledContent.contents, expectedContents);
+      expect(filledContent.content, expectedContents);
     });
 
     test('dart + retrofit nullable parameters', () async {
@@ -1957,16 +2471,20 @@ abstract class ClassNameClient {
             name: 'getRequest',
             requestType: HttpRequestType.get,
             route: '/request',
-            returnType: UniversalType(type: 'string'),
+            returnType: UniversalType(type: 'string', isRequired: true),
             parameters: [
               UniversalRequestType(
                 parameterType: HttpParameterType.query,
                 type: UniversalType(
                   type: 'string',
-                  arrayDepth: 4,
+                  wrappingCollections: [
+                    UniversalCollections.nullableList,
+                    UniversalCollections.list,
+                    UniversalCollections.list,
+                    UniversalCollections.list,
+                  ],
                   name: 'list1',
                   isRequired: false,
-                  nullable: true,
                 ),
                 name: 'deepArrayNullable',
               ),
@@ -1986,7 +2504,6 @@ abstract class ClassNameClient {
                   type: 'string',
                   name: 'list3',
                   isRequired: true,
-                  nullable: false,
                 ),
                 name: 'requiredButNotNullable',
               ),
@@ -1996,7 +2513,6 @@ abstract class ClassNameClient {
                   type: 'string',
                   name: 'list4',
                   isRequired: false,
-                  nullable: false,
                 ),
                 name: 'notRequiredAndNotNullable',
               ),
@@ -2014,7 +2530,9 @@ abstract class ClassNameClient {
           ),
         ],
       );
-      const fillController = FillController();
+      const fillController = FillController(
+        config: GeneratorConfig(name: '', outputDirectory: ''),
+      );
       final filledContent = fillController.fillRestClientContent(restClient);
       const expectedContents = '''
 import 'package:dio/dio.dart';
@@ -2036,7 +2554,7 @@ abstract class ClassNameClient {
   });
 }
 ''';
-      expect(filledContent.contents, expectedContents);
+      expect(filledContent.content, expectedContents);
     });
 
     test('Kotlin nullability of request parameters', () async {
@@ -2048,16 +2566,24 @@ abstract class ClassNameClient {
             name: 'getRequest',
             requestType: HttpRequestType.get,
             route: '/request',
-            returnType: UniversalType(type: 'string', nullable: true),
+            returnType: UniversalType(
+              type: 'string',
+              nullable: true,
+              isRequired: true,
+            ),
             parameters: [
               UniversalRequestType(
                 parameterType: HttpParameterType.query,
                 type: UniversalType(
                   type: 'string',
-                  arrayDepth: 4,
+                  wrappingCollections: [
+                    UniversalCollections.nullableList,
+                    UniversalCollections.list,
+                    UniversalCollections.list,
+                    UniversalCollections.list,
+                  ],
                   name: 'deepList',
-                  isRequired: false,
-                  nullable: true,
+                  isRequired: true,
                 ),
                 name: 'deepArrayNullable',
               ),
@@ -2067,16 +2593,20 @@ abstract class ClassNameClient {
             name: 'getRequest2',
             requestType: HttpRequestType.get,
             route: '/request2',
-            returnType: UniversalType(type: 'string', nullable: false),
+            returnType: UniversalType(type: 'string', isRequired: true),
             parameters: [
               UniversalRequestType(
                 parameterType: HttpParameterType.query,
                 type: UniversalType(
                   type: 'string',
-                  arrayDepth: 4,
+                  wrappingCollections: [
+                    UniversalCollections.nullableList,
+                    UniversalCollections.list,
+                    UniversalCollections.list,
+                    UniversalCollections.list,
+                  ],
                   name: 'deepList',
-                  isRequired: false,
-                  nullable: true,
+                  isRequired: true,
                 ),
                 name: 'deepArrayNullable',
               ),
@@ -2085,7 +2615,11 @@ abstract class ClassNameClient {
         ],
       );
       const fillController = FillController(
-        programmingLanguage: ProgrammingLanguage.kotlin,
+        config: GeneratorConfig(
+          name: '',
+          outputDirectory: '',
+          language: ProgrammingLanguage.kotlin,
+        ),
       );
       final filledContent = fillController.fillRestClientContent(restClient);
       const expectedContents = '''
@@ -2103,7 +2637,7 @@ interface ClassNameClient {
     ): String
 }
 ''';
-      expect(filledContent.contents, expectedContents);
+      expect(filledContent.content, expectedContents);
     });
 
     test('kotlin nullable parameters', () async {
@@ -2115,16 +2649,20 @@ interface ClassNameClient {
             name: 'getRequest',
             requestType: HttpRequestType.get,
             route: '/request',
-            returnType: UniversalType(type: 'string'),
+            returnType: UniversalType(type: 'string', isRequired: true),
             parameters: [
               UniversalRequestType(
                 parameterType: HttpParameterType.query,
                 type: UniversalType(
                   type: 'string',
-                  arrayDepth: 4,
+                  wrappingCollections: [
+                    UniversalCollections.nullableList,
+                    UniversalCollections.list,
+                    UniversalCollections.list,
+                    UniversalCollections.list,
+                  ],
                   name: 'list1',
                   isRequired: false,
-                  nullable: true,
                 ),
                 name: 'deepArrayNullable',
               ),
@@ -2144,7 +2682,6 @@ interface ClassNameClient {
                   type: 'string',
                   name: 'list3',
                   isRequired: true,
-                  nullable: false,
                 ),
                 name: 'requiredButNotNullable',
               ),
@@ -2154,7 +2691,6 @@ interface ClassNameClient {
                   type: 'string',
                   name: 'list4',
                   isRequired: false,
-                  nullable: false,
                 ),
                 name: 'notRequiredAndNotNullable',
               ),
@@ -2173,7 +2709,11 @@ interface ClassNameClient {
         ],
       );
       const fillController = FillController(
-        programmingLanguage: ProgrammingLanguage.kotlin,
+        config: GeneratorConfig(
+          name: '',
+          outputDirectory: '',
+          language: ProgrammingLanguage.kotlin,
+        ),
       );
       final filledContent = fillController.fillRestClientContent(restClient);
       const expectedContents = '''
@@ -2190,7 +2730,7 @@ interface ClassNameClient {
     ): String
 }
 ''';
-      expect(filledContent.contents, expectedContents);
+      expect(filledContent.content, expectedContents);
     });
   });
 }

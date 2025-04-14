@@ -1,6 +1,6 @@
-import '../../utils/case_utils.dart';
-import '../../utils/utils.dart';
-import '../models/open_api_info.dart';
+import '../../parser/swagger_parser_core.dart';
+import '../../parser/utils/case_utils.dart';
+import '../../utils/base_utils.dart';
 
 String dartRootClientTemplate({
   required OpenApiInfo openApiInfo,
@@ -17,7 +17,15 @@ String dartRootClientTemplate({
   final className = name.toPascal;
 
   final title = openApiInfo.title;
-  final version = openApiInfo.version;
+  final summary = openApiInfo.summary;
+  final description = openApiInfo.description;
+  final version = openApiInfo.apiVersion;
+  final fullDescription = switch ((summary, description)) {
+    (null, null) => null,
+    (_, null) => summary,
+    (null, _) => description,
+    (_, _) => '$summary\n\n$description',
+  };
 
   final comment =
       '${title ?? ''}${version != null ? ' `v$version`' : ''}';
@@ -53,16 +61,10 @@ ${_getters(clientsNames, postfix)}
 ''';
 }
 
-String _clientsImport(
-  Set<String> imports,
-  String postfix, {
-  required bool putClientsInFolder,
-}) =>
-    '\n${imports.map(
-          (import) =>
-              "import '${putClientsInFolder ? 'clients' : import.toSnake}/"
-              "${'${import}_$postfix'.toSnake}.dart';",
-        ).join('\n')}\n';
+String _clientsImport(Set<String> imports, String postfix,
+        {required bool putClientsInFolder}) =>
+    '\n${imports.map((import) => "import '${putClientsInFolder ? 'clients' : import.toSnake}/"
+        "${'${import}_$postfix'.toSnake}.dart';").join('\n')}\n';
 
 String _privateFields(Set<String> names, String postfix) => names
     .map((n) => '  ${n.toPascal + postfix.toPascal}? _${n.toCamel};')
