@@ -88,6 +88,7 @@ String _unkownEnumValue() => r'''
 
 
   /// Default value for all unparsed values, allows backward compatibility when adding new values on the backend.
+  @JsonValue(null)
   $unknown(null);''';
 
 String _fromJson(String className, UniversalEnumClass enumClass) => '''
