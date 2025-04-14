@@ -17,6 +17,7 @@ final class UniversalRequest {
     this.contentType = 'application/json',
     this.description,
     this.isDeprecated = false,
+    this.isOriginalHttpResponse = false,
   });
 
   /// Request name
@@ -49,6 +50,9 @@ final class UniversalRequest {
 
   /// Value indicating whether this request is deprecated
   final bool isDeprecated;
+
+  /// Wrap request return type with HttpResponse
+  final bool isOriginalHttpResponse;
 
   @override
   bool operator ==(Object other) =>
