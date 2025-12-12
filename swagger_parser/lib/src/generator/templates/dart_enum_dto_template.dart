@@ -112,11 +112,11 @@ ${enumBodyParts.join()}
   return sb.toString();
 }
 
-String _constructor(String className) => '\n\n  const $className(this.json);\n';
+String _constructor(String className) => '\n\n  const $className(this.name);\n';
 
 String _jsonField(UniversalEnumClass enumClass) {
   final dartType = enumClass.type.toDartType();
-  return '\n  final $dartType${_nullableSign(dartType)} json;';
+  return '\n  final $dartType${_nullableSign(dartType)} name;';
 }
 
 String _nullableSign(String dartType) {
@@ -131,12 +131,13 @@ String _nullableSign(String dartType) {
 String _unkownEnumValue() => r'''
 
   /// Default value for all unparsed values, allows backward compatibility when adding new values on the backend.
+  @JsonValue(null)
   $unknown(null);''';
 
 String _fromJson(String className, UniversalEnumClass enumClass) => '''
 
   factory $className.fromJson(${enumClass.type.toDartType()} json) => values.firstWhere(
-        (e) => e.json == json,
+        (e) => e.name == json,
         orElse: () => \$unknown,
       );
 ''';
@@ -191,11 +192,11 @@ ${indentation(2)}${item.name.toCamel}''';
 
 String _toJson(UniversalEnumClass enumClass, String className) {
   final dartType = enumClass.type.toDartType();
-  return '\n\n  $dartType${_nullableSign(dartType)} toJson() => json;';
+  return '\n\n  $dartType${_nullableSign(dartType)} toJson() => name;';
 }
 
 String _toString() =>
-    '\n\n  @override\n  String toString() => json?.toString() ?? super.toString();';
+    '\n\n  @override\n  String toString() => name?.toString() ?? super.toString();';
 
 String _toStringDartMappable() =>
     '\n\n  @override\n  String toString() => toValue().toString();\n';
@@ -217,8 +218,8 @@ String _generateFlutterComputeEnumSerializer(
   UniversalEnumClass enumClass,
 ) {
   final dartType = enumClass.type.toDartType();
-  // Note: Using object?.json instead of object?.toJson() because:
-  // - json field is always available when unknownEnumValue or enumsToJson is true
+  // Note: Using object?.name instead of object?.toJson() because:
+  // - name field is always available when unknownEnumValue or enumsToJson is true
   // - toJson() may not be generated (only when enumsToJson is true)
   return '''
 
@@ -228,9 +229,9 @@ FutureOr<$className> deserialize$className($dartType json) => $className.fromJso
 FutureOr<List<$className>> deserialize${className}List(List<$dartType> json) =>
     json.map((e) => $className.fromJson(e)).toList();
 
-FutureOr<$dartType?> serialize$className($className? object) => object?.json;
+FutureOr<$dartType?> serialize$className($className? object) => object?.name;
 
 FutureOr<List<$dartType?>> serialize${className}List(List<$className>? objects) =>
-    objects?.map((e) => e.json).toList() ?? [];
+    objects?.map((e) => e.name).toList() ?? [];
 ''';
 }

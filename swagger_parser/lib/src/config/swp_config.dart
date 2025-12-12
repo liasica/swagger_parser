@@ -592,6 +592,7 @@ class SWPConfig {
       includeTags: includeTags,
       fallbackClient: fallbackClient,
       inferRequiredFromNullable: inferRequiredFromNullable,
+      originalHttpResponse: originalHttpResponse,
     );
   }
 }

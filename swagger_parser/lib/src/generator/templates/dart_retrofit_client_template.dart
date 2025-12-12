@@ -26,8 +26,8 @@ String dartRetrofitClientTemplate({
 
   // Determine @RestApi annotation
   final restApiAnnotation = useFlutterCompute
-      ? '@RestApi(parser: Parser.FlutterCompute)'
-      : '@RestApi()';
+      ? '@RestApi(baseUrl: AppConfig.apiUrl, parser: Parser.FlutterCompute)'
+      : '@RestApi(baseUrl: AppConfig.apiUrl)';
 
   // Flutter foundation import for compute function
   final flutterComputeImport = useFlutterCompute
@@ -37,12 +37,15 @@ String dartRetrofitClientTemplate({
   final sb = StringBuffer('''
 ${_convertImport(restClient)}${ioImport(parameterTypes, useMultipartFile: useMultipartFile)}import 'package:dio/dio.dart'${_hideHeaders(restClient, defaultContentType)};
 ${flutterComputeImport}import 'package:retrofit/retrofit.dart';
-${dartImports(imports: restClient.imports, pathPrefix: '../models/')}
+import 'package:rider/core/config/app_config.dart';
+import 'package:rider/core/constants/constants.dart';
+${dartImports(imports: restClient.imports, pathPrefix: '../models/')}import '../../net/net_request.dart';
+
 part '${fileName ?? name.toSnake}.g.dart';
 
 $restApiAnnotation
 abstract class $name {
-  factory $name(Dio dio, {String? baseUrl}) = _$name;
+  factory $name(NetRequest dio, {String? baseUrl}) = _$name;
 ''');
 
   if (includeMetadata && restClient.requests.isNotEmpty) {
@@ -102,7 +105,7 @@ String _toClientRequest(
   // For binary responses, we need to use HttpResponse<List<int>> and add @DioResponseType
   final finalResponseType = isBinaryResponse
       ? 'HttpResponse<List<int>>'
-      : (originalHttpResponse ? 'HttpResponse<$responseType>' : responseType);
+      : (request.isOriginalHttpResponse ? 'HttpResponse<$responseType>' : responseType);
 
   // Add @DioResponseType(ResponseType.bytes) for binary responses - after @GET
   final dioResponseTypeAnnotation =
@@ -118,13 +121,15 @@ String _toClientRequest(
 
   final sb = StringBuffer()
     ..write(
-      "  ${descriptionComment(request.description, tabForFirstLine: false, tab: '  ', end: '  ')}${request.isDeprecated ? "@Deprecated('This method is marked as deprecated')\n  " : ''}${_contentTypeHeader(request, defaultContentType)}@${request.requestType.name.toUpperCase()}('${request.route}')$dioResponseTypeAnnotation\n  Future<$finalResponseType> ${request.name}(",
+      "  ${descriptionComment(request.description, tabForFirstLine: false, tab: '  ', end: '  ')}${request.isDeprecated ? "@Deprecated('This method is marked as deprecated')\n  " : ''}${_contentTypeHeader(request, defaultContentType)}@${request.requestType.name.toUpperCase()}('${request.route}')$dioResponseTypeAnnotation\n  Future<($finalResponseType?, DioException?)> ${request.name}({",
     );
 
   if (request.parameters.isNotEmpty ||
       addExtrasParameter ||
       addDioOptionsParameter) {
     sb.write('{\n');
+  } else {
+    sb.write('\n');
   }
 
   final sortedByRequired = List<UniversalRequestType>.from(
@@ -140,12 +145,15 @@ String _toClientRequest(
     sb.write(_addDioOptionsParameter());
   }
 
+  // Always add toast visible header
+  sb.write('    @Header(AppConstants.headerToastVisible) ToastVisible? toastVisible = ToastVisible.yes,\n');
+
   if (request.parameters.isNotEmpty ||
       addExtrasParameter ||
       addDioOptionsParameter) {
     sb.write('  });\n');
   } else {
-    sb.write(');\n');
+    sb.write('  });\n');
   }
   return sb.toString();
 }
