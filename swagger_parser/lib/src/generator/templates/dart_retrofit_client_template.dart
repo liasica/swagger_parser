@@ -26,8 +26,8 @@ String dartRetrofitClientTemplate({
 
   // Determine @RestApi annotation
   final restApiAnnotation = useFlutterCompute
-      ? '@RestApi(parser: Parser.FlutterCompute)'
-      : '@RestApi()';
+      ? '@RestApi(baseUrl: AppConfig.apiUrl, parser: Parser.FlutterCompute)'
+      : '@RestApi(baseUrl: AppConfig.apiUrl)';
 
   // Flutter foundation import for compute function
   final flutterComputeImport = useFlutterCompute
@@ -43,7 +43,7 @@ ${dartImports(imports: restClient.imports, pathPrefix: '../models/')}import '../
 
 part '${fileName ?? name.toSnake}.g.dart';
 
-@RestApi(baseUrl: AppConfig.apiUrl)
+$restApiAnnotation
 abstract class $name {
   factory $name(NetRequest dio, {String? baseUrl}) = _$name;
 ''');

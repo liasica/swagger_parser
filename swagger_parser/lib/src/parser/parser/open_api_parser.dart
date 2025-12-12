@@ -447,6 +447,8 @@ class OpenApiParser {
             }
           }
 
+          if (typeWithImport.type.type.contains('<')) {}
+
           types.add(
             UniversalRequestType(
               parameterType: HttpParameterType.body,
