@@ -439,6 +439,13 @@ class OpenApiParser {
           if (typeWithImport.import != null) {
             imports.add(typeWithImport.import!);
           }
+          final matches = RegExp('<(.*)>').allMatches(typeWithImport.type.type);
+          for (final match in matches) {
+            final sub = match.group(1);
+            if (sub != null) {
+              imports.add(sub);
+            }
+          }
 
           types.add(
             UniversalRequestType(
@@ -1755,6 +1762,39 @@ class OpenApiParser {
                 }
                 // If an item in allOf is a basic type, it's harder to merge directly here.
                 // This logic primarily supports merging multiple $ref or inline objects with properties.
+              }
+
+              // Find generic type in two-element allOf
+              if (map.containsKey(_allOfConst) && ofList.length == 2) {
+                final item1 = ofList[0];
+                final item2 = ofList[1];
+                if (item1 is Map<String, dynamic> &&
+                    item2 is Map<String, dynamic> &&
+                    item1.containsKey(_refConst) &&
+                    item2.containsKey(_propertiesConst)) {
+                  final item1Type = _findType(item1);
+                  final item1Definition = (_definitionFileContent[_definitionsConst]
+                      as Map<String, dynamic>)[_formatRef(item1)];
+                  if (item1Type.import != null &&
+                      item1Definition is Map<String, dynamic> &&
+                      item1Definition.containsKey(_propertiesConst)) {
+                    final item1Properties = item1Definition[_propertiesConst];
+                    final item2Properties = item2[_propertiesConst];
+                    if (item1Properties is Map<String, dynamic> &&
+                        item2Properties is Map<String, dynamic> &&
+                        item2Properties.entries.length == 1 &&
+                        item1Properties
+                            .containsKey(item2Properties.entries.first.key)) {
+                      final item2Property =
+                          item2Properties.entries.first.value as Map<String, dynamic>;
+                      final item2Type = _findType(item2Property);
+                      ofImport = item1Type.import;
+                      ofType = item1Type.type.copyWith(
+                          nullable: true,
+                          type: '${item1Type.type.type}<${item2Type.type.type}>');
+                    }
+                  }
+                }
               }
 
               if (refs.isNotEmpty || parameters.isNotEmpty) {

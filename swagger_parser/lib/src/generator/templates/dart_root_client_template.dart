@@ -29,20 +29,30 @@ String dartRootClientTemplate({
   };
 
   final comment =
-      '${title ?? ''}${version != null ? ' `v$version`' : ''}${fullDescription != null ? '\n\n$fullDescription' : ''}';
+      '${title ?? ''}${version != null ? ' `v$version`' : ''}';
 
   return '''
-import 'package:dio/dio.dart';
-${_clientsImport(clientsNames, postfix, putClientsInFolder: putClientsInFolder, clientsNameMap: clientsNameMap)}
-${descriptionComment(comment)}class $className {
-  $className(
-    Dio dio, {
+${generatedFileComment(
+    markFileAsGenerated: markFileAsGenerated,
+  )}import 'package:injectable/injectable.dart';
+import 'package:rider/core/injector.dart';
+import 'package:rider/core/config/app_config.dart';
+${_clientsImport(clientsNames, postfix, putClientsInFolder: putClientsInFolder, clientsNameMap: clientsNameMap)}import '../net/net_request.dart';
+
+${descriptionComment(comment)}
+@Singleton(order: -50)
+class $className {
+  $className({
+    NetRequest? dio,
     String? baseUrl,
-  })  : _dio = dio,
+  })  : _dio = dio ?? locator<NetRequest>(),
         _baseUrl = baseUrl;
 
-  final Dio _dio;
+  final NetRequest _dio;
   final String? _baseUrl;
+
+  @factoryMethod
+  static $className create() => $className(dio: NetRequest(), baseUrl: AppConfig.apiUrl);
 
   static String get version => '${openApiInfo.apiVersion ?? ''}';
 
