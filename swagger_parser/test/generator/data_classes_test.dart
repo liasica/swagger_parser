@@ -1,11 +1,4 @@
-// ignore_for_file: avoid_redundant_argument_values
-
-import 'package:swagger_parser/src/generator/fill_controller.dart';
-import 'package:swagger_parser/src/generator/models/generated_file.dart';
-import 'package:swagger_parser/src/generator/models/json_serializer.dart';
-import 'package:swagger_parser/src/generator/models/programming_language.dart';
-import 'package:swagger_parser/src/generator/models/universal_data_class.dart';
-import 'package:swagger_parser/src/generator/models/universal_type.dart';
+import 'package:swagger_parser/swagger_parser.dart';
 import 'package:test/test.dart';
 
 void main() {
@@ -14,9 +7,11 @@ void main() {
       const dataClass = UniversalComponentClass(
         name: 'ClassName',
         imports: {},
-        parameters: [],
+        parameters: {},
       );
-      const fillController = FillController();
+      const fillController = FillController(
+        config: GeneratorConfig(name: '', outputDirectory: ''),
+      );
       final filledContent = fillController.fillDtoContent(dataClass);
       const expectedContents = r'''
 import 'package:json_annotation/json_annotation.dart';
@@ -32,17 +27,21 @@ class ClassName {
   Map<String, Object?> toJson() => _$ClassNameToJson(this);
 }
 ''';
-      expect(filledContent.contents, expectedContents);
+      expect(filledContent.content, expectedContents);
     });
 
     test('dart + freezed', () async {
       const dataClass = UniversalComponentClass(
         name: 'ClassName',
         imports: {},
-        parameters: [],
+        parameters: {},
       );
       const fillController = FillController(
-        jsonSerializer: JsonSerializer.freezed,
+        config: GeneratorConfig(
+          name: '',
+          outputDirectory: '',
+          jsonSerializer: JsonSerializer.freezed,
+        ),
       );
       final filledContent = fillController.fillDtoContent(dataClass);
       const expectedContents = r'''
@@ -58,17 +57,21 @@ class ClassName with _$ClassName {
   factory ClassName.fromJson(Map<String, Object?> json) => _$ClassNameFromJson(json);
 }
 ''';
-      expect(filledContent.contents, expectedContents);
+      expect(filledContent.content, expectedContents);
     });
 
     test('kotlin + moshi', () async {
       const dataClass = UniversalComponentClass(
         name: 'ClassName',
         imports: {},
-        parameters: [],
+        parameters: {},
       );
       const fillController = FillController(
-        programmingLanguage: ProgrammingLanguage.kotlin,
+        config: GeneratorConfig(
+          name: '',
+          outputDirectory: '',
+          language: ProgrammingLanguage.kotlin,
+        ),
       );
       final filledContent = fillController.fillDtoContent(dataClass);
       const expectedContents = '''
@@ -78,7 +81,7 @@ import com.squareup.moshi.JsonClass
 @JsonClass(generateAdapter = true)
 data class ClassName()
 ''';
-      expect(filledContent.contents, expectedContents);
+      expect(filledContent.content, expectedContents);
     });
   });
 
@@ -93,9 +96,11 @@ data class ClassName()
           'PascalClass',
           'Space class',
         },
-        parameters: [],
+        parameters: {},
       );
-      const fillController = FillController();
+      const fillController = FillController(
+        config: GeneratorConfig(name: '', outputDirectory: ''),
+      );
       final filledContent = fillController.fillDtoContent(dataClass);
       const expectedContents = r'''
 import 'package:json_annotation/json_annotation.dart';
@@ -117,7 +122,7 @@ class ClassName {
   Map<String, Object?> toJson() => _$ClassNameToJson(this);
 }
 ''';
-      expect(filledContent.contents, expectedContents);
+      expect(filledContent.content, expectedContents);
     });
 
     test('dart + freezed', () async {
@@ -130,10 +135,14 @@ class ClassName {
           'PascalClass',
           'Space class',
         },
-        parameters: [],
+        parameters: {},
       );
       const fillController = FillController(
-        jsonSerializer: JsonSerializer.freezed,
+        config: GeneratorConfig(
+          name: '',
+          outputDirectory: '',
+          jsonSerializer: JsonSerializer.freezed,
+        ),
       );
       final filledContent = fillController.fillDtoContent(dataClass);
       const expectedContents = r'''
@@ -155,7 +164,7 @@ class ClassName with _$ClassName {
   factory ClassName.fromJson(Map<String, Object?> json) => _$ClassNameFromJson(json);
 }
 ''';
-      expect(filledContent.contents, expectedContents);
+      expect(filledContent.content, expectedContents);
     });
 
     test('kotlin + moshi', () async {
@@ -165,45 +174,58 @@ class ClassName with _$ClassName {
 
   group('Parameters', () {
     test('dart + json_serializable', () async {
-      const dataClass = UniversalComponentClass(
+      final dataClass = UniversalComponentClass(
         name: 'ClassName',
-        imports: {},
-        parameters: [
-          UniversalType(type: 'integer', name: 'intType'),
-          UniversalType(type: 'number', name: 'numberType'),
-          UniversalType(
+        imports: const {},
+        parameters: {
+          const UniversalType(
+              type: 'integer', name: 'intType', isRequired: true),
+          const UniversalType(
+              type: 'number', name: 'numberType', isRequired: true),
+          const UniversalType(
             type: 'number',
             format: 'double',
             name: 'doubleNumberType',
+            isRequired: true,
           ),
-          UniversalType(
+          const UniversalType(
             type: 'number',
             format: 'float',
             name: 'floatNumberType',
+            isRequired: true,
           ),
-          UniversalType(type: 'string', name: 'stringType'),
-          UniversalType(
+          const UniversalType(
+              type: 'string', name: 'stringType', isRequired: true),
+          const UniversalType(
             type: 'string',
             format: 'binary',
             name: 'binaryStringType',
+            isRequired: true,
           ),
-          UniversalType(
+          const UniversalType(
             type: 'string',
             format: 'date',
             name: 'dateStringType',
+            isRequired: true,
           ),
-          UniversalType(
+          const UniversalType(
             type: 'string',
             format: 'date-time',
             name: 'dateTimeStringType',
+            isRequired: true,
           ),
-          UniversalType(type: 'file', name: 'fileType'),
-          UniversalType(type: 'boolean', name: 'boolType'),
-          UniversalType(type: 'object', name: 'objectType'),
-          UniversalType(type: 'Another', name: 'anotherType'),
-        ],
+          const UniversalType(type: 'file', name: 'fileType', isRequired: true),
+          const UniversalType(
+              type: 'boolean', name: 'boolType', isRequired: true),
+          const UniversalType(
+              type: 'object', name: 'objectType', isRequired: true),
+          const UniversalType(
+              type: 'Another', name: 'anotherType', isRequired: true),
+        },
       );
-      const fillController = FillController();
+      const fillController = FillController(
+        config: GeneratorConfig(name: '', outputDirectory: ''),
+      );
       final filledContent = fillController.fillDtoContent(dataClass);
       const expectedContents = r'''
 import 'dart:io';
@@ -241,56 +263,71 @@ class ClassName {
   final DateTime dateTimeStringType;
   final File fileType;
   final bool boolType;
-  final Object objectType;
+  final dynamic objectType;
   final Another anotherType;
 
   Map<String, Object?> toJson() => _$ClassNameToJson(this);
 }
 ''';
-      expect(filledContent.contents, expectedContents);
+      expect(filledContent.content, expectedContents);
     });
 
     test('dart + freezed', () async {
-      const dataClass = UniversalComponentClass(
+      final dataClass = UniversalComponentClass(
         name: 'ClassName',
-        imports: {},
-        parameters: [
-          UniversalType(type: 'integer', name: 'intType'),
-          UniversalType(type: 'number', name: 'numberType'),
-          UniversalType(
+        imports: const {},
+        parameters: {
+          const UniversalType(
+              type: 'integer', name: 'intType', isRequired: true),
+          const UniversalType(
+              type: 'number', name: 'numberType', isRequired: true),
+          const UniversalType(
             type: 'number',
             format: 'double',
             name: 'doubleNumberType',
+            isRequired: true,
           ),
-          UniversalType(
+          const UniversalType(
             type: 'number',
             format: 'float',
             name: 'floatNumberType',
+            isRequired: true,
           ),
-          UniversalType(type: 'string', name: 'stringType'),
-          UniversalType(
+          const UniversalType(
+              type: 'string', name: 'stringType', isRequired: true),
+          const UniversalType(
             type: 'string',
             format: 'binary',
             name: 'binaryStringType',
+            isRequired: true,
           ),
-          UniversalType(
+          const UniversalType(
             type: 'string',
             format: 'date',
             name: 'dateStringType',
+            isRequired: true,
           ),
-          UniversalType(
+          const UniversalType(
             type: 'string',
             format: 'date-time',
             name: 'dateTimeStringType',
+            isRequired: true,
           ),
-          UniversalType(type: 'file', name: 'fileType'),
-          UniversalType(type: 'boolean', name: 'boolType'),
-          UniversalType(type: 'object', name: 'objectType'),
-          UniversalType(type: 'Another', name: 'anotherType'),
-        ],
+          const UniversalType(type: 'file', name: 'fileType', isRequired: true),
+          const UniversalType(
+              type: 'boolean', name: 'boolType', isRequired: true),
+          const UniversalType(
+              type: 'object', name: 'objectType', isRequired: true),
+          const UniversalType(
+              type: 'Another', name: 'anotherType', isRequired: true),
+        },
       );
       const fillController = FillController(
-        jsonSerializer: JsonSerializer.freezed,
+        config: GeneratorConfig(
+          name: '',
+          outputDirectory: '',
+          jsonSerializer: JsonSerializer.freezed,
+        ),
       );
       final filledContent = fillController.fillDtoContent(dataClass);
       const expectedContents = r'''
@@ -314,57 +351,72 @@ class ClassName with _$ClassName {
     required DateTime dateTimeStringType,
     required File fileType,
     required bool boolType,
-    required Object objectType,
+    required dynamic objectType,
     required Another anotherType,
   }) = _ClassName;
   
   factory ClassName.fromJson(Map<String, Object?> json) => _$ClassNameFromJson(json);
 }
 ''';
-      expect(filledContent.contents, expectedContents);
+      expect(filledContent.content, expectedContents);
     });
 
     test('dart + dart_mappable', () async {
-      const dataClass = UniversalComponentClass(
+      final dataClass = UniversalComponentClass(
         name: 'ClassName',
-        imports: {},
-        parameters: [
-          UniversalType(type: 'integer', name: 'intType'),
-          UniversalType(type: 'number', name: 'numberType'),
-          UniversalType(
+        imports: const {},
+        parameters: {
+          const UniversalType(
+              type: 'integer', name: 'intType', isRequired: true),
+          const UniversalType(
+              type: 'number', name: 'numberType', isRequired: true),
+          const UniversalType(
             type: 'number',
             format: 'double',
             name: 'doubleNumberType',
+            isRequired: true,
           ),
-          UniversalType(
+          const UniversalType(
             type: 'number',
             format: 'float',
             name: 'floatNumberType',
+            isRequired: true,
           ),
-          UniversalType(type: 'string', name: 'stringType'),
-          UniversalType(
+          const UniversalType(
+              type: 'string', name: 'stringType', isRequired: true),
+          const UniversalType(
             type: 'string',
             format: 'binary',
             name: 'binaryStringType',
+            isRequired: true,
           ),
-          UniversalType(
+          const UniversalType(
             type: 'string',
             format: 'date',
             name: 'dateStringType',
+            isRequired: true,
           ),
-          UniversalType(
+          const UniversalType(
             type: 'string',
             format: 'date-time',
             name: 'dateTimeStringType',
+            isRequired: true,
           ),
-          UniversalType(type: 'file', name: 'fileType'),
-          UniversalType(type: 'boolean', name: 'boolType'),
-          UniversalType(type: 'object', name: 'objectType'),
-          UniversalType(type: 'Another', name: 'anotherType'),
-        ],
+          const UniversalType(type: 'file', name: 'fileType', isRequired: true),
+          const UniversalType(
+              type: 'boolean', name: 'boolType', isRequired: true),
+          const UniversalType(
+              type: 'object', name: 'objectType', isRequired: true),
+          const UniversalType(
+              type: 'Another', name: 'anotherType', isRequired: true),
+        },
       );
       const fillController = FillController(
-        jsonSerializer: JsonSerializer.dartMappable,
+        config: GeneratorConfig(
+          name: '',
+          outputDirectory: '',
+          jsonSerializer: JsonSerializer.dartMappable,
+        ),
       );
       final filledContent = fillController.fillDtoContent(dataClass);
       const expectedContents = '''
@@ -400,59 +452,113 @@ class ClassName with ClassNameMappable {
   final DateTime dateTimeStringType;
   final File fileType;
   final bool boolType;
-  final Object objectType;
+  final dynamic objectType;
   final Another anotherType;
 
   static ClassName fromJson(Map<String, dynamic> json) => ClassNameMapper.ensureInitialized().decodeMap<ClassName>(json);
 }
 ''';
-      expect(
-        filledContent.contents,
-        equalsIgnoringWhitespace(expectedContents),
+      expect(filledContent.content, equalsIgnoringWhitespace(expectedContents));
+    });
+
+    test('dart + dart_mappable with custom json key', () async {
+      final dataClass = UniversalComponentClass(
+        name: 'ClassName',
+        imports: const {},
+        parameters: {
+          const UniversalType(
+            type: 'string',
+            name: 'imageUrl',
+            jsonKey: 'imageURL',
+            isRequired: true,
+          ),
+        },
       );
+      const fillController = FillController(
+        config: GeneratorConfig(
+          name: '',
+          outputDirectory: '',
+          jsonSerializer: JsonSerializer.dartMappable,
+        ),
+      );
+      final filledContent = fillController.fillDtoContent(dataClass);
+      const expectedContents = '''
+import 'package:dart_mappable/dart_mappable.dart';
+
+part 'class_name.mapper.dart';
+
+@MappableClass()
+class ClassName with ClassNameMappable {
+
+  const ClassName({
+    required this.imageUrl,
+  });
+
+  @MappableField(key: 'imageURL')
+  final String imageUrl;
+
+  static ClassName fromJson(Map<String, dynamic> json) => ClassNameMapper.ensureInitialized().decodeMap<ClassName>(json);
+}
+''';
+      expect(filledContent.content, equalsIgnoringWhitespace(expectedContents));
     });
 
     test('kotlin + moshi', () async {
-      const dataClass = UniversalComponentClass(
+      final dataClass = UniversalComponentClass(
         name: 'ClassName',
-        imports: {},
-        parameters: [
-          UniversalType(type: 'integer', name: 'intType'),
-          UniversalType(type: 'number', name: 'numberType'),
-          UniversalType(
+        imports: const {},
+        parameters: {
+          const UniversalType(
+              type: 'integer', name: 'intType', isRequired: true),
+          const UniversalType(
+              type: 'number', name: 'numberType', isRequired: true),
+          const UniversalType(
             type: 'number',
             format: 'double',
             name: 'doubleNumberType',
+            isRequired: true,
           ),
-          UniversalType(
+          const UniversalType(
             type: 'number',
             format: 'float',
             name: 'floatNumberType',
+            isRequired: true,
           ),
-          UniversalType(type: 'string', name: 'stringType'),
-          UniversalType(
+          const UniversalType(
+              type: 'string', name: 'stringType', isRequired: true),
+          const UniversalType(
             type: 'string',
             format: 'binary',
             name: 'binaryStringType',
+            isRequired: true,
           ),
-          UniversalType(
+          const UniversalType(
             type: 'string',
             format: 'date',
             name: 'dateStringType',
+            isRequired: true,
           ),
-          UniversalType(
+          const UniversalType(
             type: 'string',
             format: 'date-time',
             name: 'dateTimeStringType',
+            isRequired: true,
           ),
-          UniversalType(type: 'file', name: 'fileType'),
-          UniversalType(type: 'boolean', name: 'boolType'),
-          UniversalType(type: 'object', name: 'objectType'),
-          UniversalType(type: 'Another', name: 'anotherType'),
-        ],
+          const UniversalType(type: 'file', name: 'fileType', isRequired: true),
+          const UniversalType(
+              type: 'boolean', name: 'boolType', isRequired: true),
+          const UniversalType(
+              type: 'object', name: 'objectType', isRequired: true),
+          const UniversalType(
+              type: 'Another', name: 'anotherType', isRequired: true),
+        },
       );
       const fillController = FillController(
-        programmingLanguage: ProgrammingLanguage.kotlin,
+        config: GeneratorConfig(
+          name: '',
+          outputDirectory: '',
+          language: ProgrammingLanguage.kotlin,
+        ),
       );
       final filledContent = fillController.fillDtoContent(dataClass);
       const expectedContents = '''
@@ -475,22 +581,48 @@ data class ClassName(
     var anotherType: Another,
 )
 ''';
-      expect(filledContent.contents, expectedContents);
+      expect(filledContent.content, expectedContents);
     });
   });
 
   group('Array type', () {
     test('dart + json_serializable', () async {
-      const dataClass = UniversalComponentClass(
+      final dataClass = UniversalComponentClass(
         name: 'ClassName',
-        imports: {'Another'},
-        parameters: [
-          UniversalType(type: 'integer', name: 'list0', arrayDepth: 1),
-          UniversalType(type: 'string', name: 'list1', arrayDepth: 2),
-          UniversalType(type: 'Another', name: 'list5', arrayDepth: 5),
-        ],
+        imports: const {'Another'},
+        parameters: {
+          const UniversalType(
+            type: 'integer',
+            name: 'list0',
+            wrappingCollections: [UniversalCollections.list],
+            isRequired: true,
+          ),
+          const UniversalType(
+            type: 'string',
+            name: 'list1',
+            wrappingCollections: [
+              UniversalCollections.list,
+              UniversalCollections.list,
+            ],
+            isRequired: true,
+          ),
+          const UniversalType(
+            type: 'Another',
+            name: 'list5',
+            wrappingCollections: [
+              UniversalCollections.list,
+              UniversalCollections.list,
+              UniversalCollections.list,
+              UniversalCollections.list,
+              UniversalCollections.list,
+            ],
+            isRequired: true,
+          ),
+        },
       );
-      const fillController = FillController();
+      const fillController = FillController(
+        config: GeneratorConfig(name: '', outputDirectory: ''),
+      );
       final filledContent = fillController.fillDtoContent(dataClass);
       const expectedContents = r'''
 import 'package:json_annotation/json_annotation.dart';
@@ -516,21 +648,49 @@ class ClassName {
   Map<String, Object?> toJson() => _$ClassNameToJson(this);
 }
 ''';
-      expect(filledContent.contents, expectedContents);
+      expect(filledContent.content, expectedContents);
     });
 
     test('dart + freezed', () async {
-      const dataClass = UniversalComponentClass(
+      final dataClass = UniversalComponentClass(
         name: 'ClassName',
-        imports: {'Another'},
-        parameters: [
-          UniversalType(type: 'integer', name: 'list0', arrayDepth: 1),
-          UniversalType(type: 'string', name: 'list1', arrayDepth: 2),
-          UniversalType(type: 'Another', name: 'list5', arrayDepth: 5),
-        ],
+        imports: const {'Another'},
+        parameters: {
+          const UniversalType(
+            type: 'integer',
+            name: 'list0',
+            wrappingCollections: [UniversalCollections.list],
+            isRequired: true,
+          ),
+          const UniversalType(
+            type: 'string',
+            name: 'list1',
+            wrappingCollections: [
+              UniversalCollections.list,
+              UniversalCollections.list,
+            ],
+            isRequired: true,
+          ),
+          const UniversalType(
+            type: 'Another',
+            name: 'list5',
+            wrappingCollections: [
+              UniversalCollections.list,
+              UniversalCollections.list,
+              UniversalCollections.list,
+              UniversalCollections.list,
+              UniversalCollections.list,
+            ],
+            isRequired: true,
+          ),
+        },
       );
       const fillController = FillController(
-        jsonSerializer: JsonSerializer.freezed,
+        config: GeneratorConfig(
+          name: '',
+          outputDirectory: '',
+          jsonSerializer: JsonSerializer.freezed,
+        ),
       );
       final filledContent = fillController.fillDtoContent(dataClass);
       const expectedContents = r'''
@@ -552,21 +712,49 @@ class ClassName with _$ClassName {
   factory ClassName.fromJson(Map<String, Object?> json) => _$ClassNameFromJson(json);
 }
 ''';
-      expect(filledContent.contents, expectedContents);
+      expect(filledContent.content, expectedContents);
     });
 
     test('kotlin + moshi', () async {
-      const dataClass = UniversalComponentClass(
+      final dataClass = UniversalComponentClass(
         name: 'ClassName',
-        imports: {'Another'},
-        parameters: [
-          UniversalType(type: 'integer', name: 'list0', arrayDepth: 1),
-          UniversalType(type: 'string', name: 'list1', arrayDepth: 2),
-          UniversalType(type: 'Another', name: 'list5', arrayDepth: 5),
-        ],
+        imports: const {'Another'},
+        parameters: {
+          const UniversalType(
+            type: 'integer',
+            name: 'list0',
+            wrappingCollections: [UniversalCollections.list],
+            isRequired: true,
+          ),
+          const UniversalType(
+            type: 'string',
+            name: 'list1',
+            wrappingCollections: [
+              UniversalCollections.list,
+              UniversalCollections.list,
+            ],
+            isRequired: true,
+          ),
+          const UniversalType(
+            type: 'Another',
+            name: 'list5',
+            wrappingCollections: [
+              UniversalCollections.list,
+              UniversalCollections.list,
+              UniversalCollections.list,
+              UniversalCollections.list,
+              UniversalCollections.list,
+            ],
+            isRequired: true,
+          ),
+        },
       );
       const fillController = FillController(
-        programmingLanguage: ProgrammingLanguage.kotlin,
+        config: GeneratorConfig(
+          name: '',
+          outputDirectory: '',
+          language: ProgrammingLanguage.kotlin,
+        ),
       );
       final filledContent = fillController.fillDtoContent(dataClass);
       const expectedContents = '''
@@ -580,35 +768,45 @@ data class ClassName(
     var list5: List<List<List<List<List<Another>>>>>,
 )
 ''';
-      expect(filledContent.contents, expectedContents);
+      expect(filledContent.content, expectedContents);
     });
   });
 
   group('JsonKey name', () {
     test('dart + json_serializable', () async {
-      const dataClass = UniversalComponentClass(
+      final dataClass = UniversalComponentClass(
         name: 'ClassName',
-        imports: {},
-        parameters: [
-          UniversalType(type: 'integer', name: 'intType', jsonKey: 'int_type'),
-          UniversalType(
+        imports: const {},
+        parameters: {
+          const UniversalType(
+            type: 'integer',
+            name: 'intType',
+            jsonKey: 'int_type',
+            isRequired: true,
+          ),
+          const UniversalType(
             type: 'string',
             name: 'stringType',
             jsonKey: 'stringType',
+            isRequired: true,
           ),
-          UniversalType(
+          const UniversalType(
             type: 'boolean',
             name: 'boolType',
             jsonKey: 'bool-type',
+            isRequired: true,
           ),
-          UniversalType(
+          const UniversalType(
             type: 'Another',
             name: 'anotherType',
             jsonKey: 'another',
+            isRequired: true,
           ),
-        ],
+        },
       );
-      const fillController = FillController();
+      const fillController = FillController(
+        config: GeneratorConfig(name: '', outputDirectory: ''),
+      );
       final filledContent = fillController.fillDtoContent(dataClass);
       const expectedContents = r'''
 import 'package:json_annotation/json_annotation.dart';
@@ -637,34 +835,46 @@ class ClassName {
   Map<String, Object?> toJson() => _$ClassNameToJson(this);
 }
 ''';
-      expect(filledContent.contents, expectedContents);
+      expect(filledContent.content, expectedContents);
     });
 
     test('dart + freezed', () async {
-      const dataClass = UniversalComponentClass(
+      final dataClass = UniversalComponentClass(
         name: 'ClassName',
-        imports: {},
-        parameters: [
-          UniversalType(type: 'integer', name: 'intType', jsonKey: 'int_type'),
-          UniversalType(
+        imports: const {},
+        parameters: {
+          const UniversalType(
+            type: 'integer',
+            name: 'intType',
+            jsonKey: 'int_type',
+            isRequired: true,
+          ),
+          const UniversalType(
             type: 'string',
             name: 'stringType',
             jsonKey: 'stringType',
+            isRequired: true,
           ),
-          UniversalType(
+          const UniversalType(
             type: 'boolean',
             name: 'boolType',
             jsonKey: 'bool-type',
+            isRequired: true,
           ),
-          UniversalType(
+          const UniversalType(
             type: 'Another',
             name: 'anotherType',
             jsonKey: 'another',
+            isRequired: true,
           ),
-        ],
+        },
       );
       const fillController = FillController(
-        jsonSerializer: JsonSerializer.freezed,
+        config: GeneratorConfig(
+          name: '',
+          outputDirectory: '',
+          jsonSerializer: JsonSerializer.freezed,
+        ),
       );
       final filledContent = fillController.fillDtoContent(dataClass);
       const expectedContents = r'''
@@ -688,34 +898,46 @@ class ClassName with _$ClassName {
   factory ClassName.fromJson(Map<String, Object?> json) => _$ClassNameFromJson(json);
 }
 ''';
-      expect(filledContent.contents, expectedContents);
+      expect(filledContent.content, expectedContents);
     });
 
     test('kotlin + moshi', () async {
-      const dataClass = UniversalComponentClass(
+      final dataClass = UniversalComponentClass(
         name: 'ClassName',
-        imports: {},
-        parameters: [
-          UniversalType(type: 'integer', name: 'intType', jsonKey: 'int_type'),
-          UniversalType(
+        imports: const {},
+        parameters: {
+          const UniversalType(
+            type: 'integer',
+            name: 'intType',
+            jsonKey: 'int_type',
+            isRequired: true,
+          ),
+          const UniversalType(
             type: 'string',
             name: 'stringType',
             jsonKey: 'stringType',
+            isRequired: true,
           ),
-          UniversalType(
+          const UniversalType(
             type: 'boolean',
             name: 'boolType',
             jsonKey: 'bool-type',
+            isRequired: true,
           ),
-          UniversalType(
+          const UniversalType(
             type: 'Another',
             name: 'anotherType',
             jsonKey: 'another',
+            isRequired: true,
           ),
-        ],
+        },
       );
       const fillController = FillController(
-        programmingLanguage: ProgrammingLanguage.kotlin,
+        config: GeneratorConfig(
+          name: '',
+          outputDirectory: '',
+          language: ProgrammingLanguage.kotlin,
+        ),
       );
       final filledContent = fillController.fillDtoContent(dataClass);
       const expectedContents = '''
@@ -733,47 +955,54 @@ data class ClassName(
     var anotherType: Another,
 )
 ''';
-      expect(filledContent.contents, expectedContents);
+      expect(filledContent.content, expectedContents);
     });
   });
 
   group('defaultValue', () {
     test('dart + json_serializable', () async {
-      const dataClass = UniversalComponentClass(
+      final dataClass = UniversalComponentClass(
         name: 'ClassName',
-        imports: {'Haha'},
-        parameters: [
-          UniversalType(
+        imports: const {'Haha'},
+        parameters: {
+          const UniversalType(
             type: 'integer',
             name: 'intType',
             defaultValue: '1',
+            isRequired: true,
           ),
-          UniversalType(
+          const UniversalType(
             type: 'string',
             name: 'stringType',
             defaultValue: 'str',
+            isRequired: true,
           ),
-          UniversalType(
+          const UniversalType(
             type: 'boolean',
             name: 'boolType',
             defaultValue: 'false',
+            isRequired: true,
           ),
-          UniversalType(
+          const UniversalType(
             type: 'number',
             name: 'nullableType',
             defaultValue: '-1.1',
             nullable: true,
+            isRequired: true,
           ),
-          UniversalType(
+          const UniversalType(
             type: 'Haha',
             name: 'enumType',
             defaultValue: 'HEHE',
             enumType: 'string',
-            nullable: false,
+            isRequired: true,
           ),
-        ],
+        },
       );
-      const fillController = FillController();
+      const fillController = FillController(
+        config:
+            GeneratorConfig(name: '', outputDirectory: '', includeIfNull: true),
+      );
       final filledContent = fillController.fillDtoContent(dataClass);
       const expectedContents = r'''
 import 'package:json_annotation/json_annotation.dart';
@@ -797,52 +1026,62 @@ class ClassName {
   final int intType;
   final String stringType;
   final bool boolType;
-  final num nullableType;
+  @JsonKey(includeIfNull: true)
+  final num? nullableType;
   final Haha enumType;
 
   Map<String, Object?> toJson() => _$ClassNameToJson(this);
 }
 ''';
-      expect(filledContent.contents, expectedContents);
+      expect(filledContent.content, expectedContents);
     });
 
     test('dart + freezed', () async {
-      const dataClass = UniversalComponentClass(
+      final dataClass = UniversalComponentClass(
         name: 'ClassName',
-        imports: {'Haha'},
-        parameters: [
-          UniversalType(
+        imports: const {'Haha'},
+        parameters: {
+          const UniversalType(
             type: 'integer',
             name: 'intType',
             defaultValue: '1',
+            isRequired: true,
           ),
-          UniversalType(
+          const UniversalType(
             type: 'string',
             name: 'stringType',
             defaultValue: 'str',
+            isRequired: true,
           ),
-          UniversalType(
+          const UniversalType(
             type: 'boolean',
             name: 'boolType',
             defaultValue: 'false',
+            isRequired: true,
           ),
-          UniversalType(
+          const UniversalType(
             type: 'number',
             name: 'nullableType',
             defaultValue: '-1.1',
             nullable: true,
+            isRequired: true,
           ),
-          UniversalType(
+          const UniversalType(
             type: 'Haha',
             name: 'enumType',
             defaultValue: 'HEHE',
             enumType: 'string',
-            nullable: false,
+            isRequired: true,
           ),
-        ],
+        },
       );
       const fillController = FillController(
-        jsonSerializer: JsonSerializer.freezed,
+        config: GeneratorConfig(
+          name: '',
+          outputDirectory: '',
+          jsonSerializer: JsonSerializer.freezed,
+          includeIfNull: true,
+        ),
       );
       final filledContent = fillController.fillDtoContent(dataClass);
       const expectedContents = r'''
@@ -862,8 +1101,9 @@ class ClassName with _$ClassName {
     String stringType,
     @Default(false)
     bool boolType,
+    @JsonKey(includeIfNull: true)
     @Default(-1.1)
-    num nullableType,
+    num? nullableType,
     @Default(Haha.hehe)
     Haha enumType,
   }) = _ClassName;
@@ -871,39 +1111,47 @@ class ClassName with _$ClassName {
   factory ClassName.fromJson(Map<String, Object?> json) => _$ClassNameFromJson(json);
 }
 ''';
-      expect(filledContent.contents, expectedContents);
+      expect(filledContent.content, expectedContents);
     });
 
     test('kotlin + moshi', () async {
-      const dataClass = UniversalComponentClass(
+      final dataClass = UniversalComponentClass(
         name: 'ClassName',
-        imports: {},
-        parameters: [
-          UniversalType(
+        imports: const {},
+        parameters: {
+          const UniversalType(
             type: 'integer',
             name: 'intType',
             defaultValue: '1',
+            isRequired: true,
           ),
-          UniversalType(
+          const UniversalType(
             type: 'string',
             name: 'stringType',
             defaultValue: 'str',
+            isRequired: true,
           ),
-          UniversalType(
+          const UniversalType(
             type: 'boolean',
             name: 'boolType',
             defaultValue: 'false',
+            isRequired: true,
           ),
-          UniversalType(
+          const UniversalType(
             type: 'number',
             name: 'nullableType',
             defaultValue: '-1.1',
             nullable: true,
+            isRequired: true,
           ),
-        ],
+        },
       );
       const fillController = FillController(
-        programmingLanguage: ProgrammingLanguage.kotlin,
+        config: GeneratorConfig(
+          name: '',
+          outputDirectory: '',
+          language: ProgrammingLanguage.kotlin,
+        ),
       );
       final filledContent = fillController.fillDtoContent(dataClass);
       const expectedContents = '''
@@ -915,36 +1163,50 @@ data class ClassName(
     var intType: Int = 1,
     var stringType: String = "str",
     var boolType: Boolean = false,
-    var nullableType: Double = -1.1,
+    var nullableType: Double? = -1.1,
 )
 ''';
-      expect(filledContent.contents, expectedContents);
+      expect(filledContent.content, expectedContents);
     });
   });
 
   group('Required parameters', () {
     test('dart + json_serializable', () async {
-      const dataClass = UniversalComponentClass(
+      final dataClass = UniversalComponentClass(
         name: 'ClassName',
-        imports: {'Another'},
-        parameters: [
-          UniversalType(type: 'integer', name: 'intType', isRequired: false),
-          UniversalType(
+        imports: const {'Another'},
+        parameters: {
+          const UniversalType(
+              type: 'integer',
+              name: 'intType',
+              isRequired: false,
+              nullable: true),
+          const UniversalType(
             type: 'string',
-            arrayDepth: 1,
+            wrappingCollections: [UniversalCollections.nullableList],
             name: 'list',
             isRequired: false,
           ),
-          UniversalType(type: 'Another', name: 'another', isRequired: false),
-          UniversalType(
+          const UniversalType(
+              type: 'Another',
+              name: 'another',
+              isRequired: false,
+              nullable: true),
+          const UniversalType(
             type: 'Another',
-            arrayDepth: 2,
+            wrappingCollections: [
+              UniversalCollections.list,
+              UniversalCollections.list,
+            ],
             name: 'anotherList',
             isRequired: true,
           ),
-        ],
+        },
       );
-      const fillController = FillController();
+      const fillController = FillController(
+        config:
+            GeneratorConfig(name: '', outputDirectory: '', includeIfNull: true),
+      );
       final filledContent = fillController.fillDtoContent(dataClass);
       const expectedContents = r'''
 import 'package:json_annotation/json_annotation.dart';
@@ -964,40 +1226,58 @@ class ClassName {
   
   factory ClassName.fromJson(Map<String, Object?> json) => _$ClassNameFromJson(json);
   
+  @JsonKey(includeIfNull: false)
   final int? intType;
   final List<String>? list;
+  @JsonKey(includeIfNull: false)
   final Another? another;
   final List<List<Another>> anotherList;
 
   Map<String, Object?> toJson() => _$ClassNameToJson(this);
 }
 ''';
-      expect(filledContent.contents, expectedContents);
+      expect(filledContent.content, expectedContents);
     });
 
     test('dart + freezed', () async {
-      const dataClass = UniversalComponentClass(
+      final dataClass = UniversalComponentClass(
         name: 'ClassName',
-        imports: {'Another'},
-        parameters: [
-          UniversalType(type: 'integer', name: 'intType', isRequired: false),
-          UniversalType(
+        imports: const {'Another'},
+        parameters: {
+          const UniversalType(
+              type: 'integer',
+              name: 'intType',
+              isRequired: false,
+              nullable: true),
+          const UniversalType(
             type: 'string',
-            arrayDepth: 1,
+            wrappingCollections: [UniversalCollections.nullableList],
             name: 'list',
             isRequired: false,
           ),
-          UniversalType(type: 'Another', name: 'another', isRequired: false),
-          UniversalType(
+          const UniversalType(
+              type: 'Another',
+              name: 'another',
+              isRequired: false,
+              nullable: true),
+          const UniversalType(
             type: 'Another',
-            arrayDepth: 2,
+            wrappingCollections: [
+              UniversalCollections.list,
+              UniversalCollections.list,
+            ],
             name: 'anotherList',
             isRequired: true,
           ),
-        ],
+        },
       );
       const fillController = FillController(
-        jsonSerializer: JsonSerializer.freezed,
+        config: GeneratorConfig(
+          name: '',
+          outputDirectory: '',
+          jsonSerializer: JsonSerializer.freezed,
+          includeIfNull: true,
+        ),
       );
       final filledContent = fillController.fillDtoContent(dataClass);
       const expectedContents = r'''
@@ -1012,40 +1292,57 @@ part 'class_name.g.dart';
 class ClassName with _$ClassName {
   const factory ClassName({
     required List<List<Another>> anotherList,
+    @JsonKey(includeIfNull: false)
     int? intType,
     List<String>? list,
+    @JsonKey(includeIfNull: false)
     Another? another,
   }) = _ClassName;
   
   factory ClassName.fromJson(Map<String, Object?> json) => _$ClassNameFromJson(json);
 }
 ''';
-      expect(filledContent.contents, expectedContents);
+      expect(filledContent.content, expectedContents);
     });
 
     test('kotlin + moshi', () async {
-      const dataClass = UniversalComponentClass(
+      final dataClass = UniversalComponentClass(
         name: 'ClassName',
-        imports: {'Another'},
-        parameters: [
-          UniversalType(type: 'integer', name: 'intType', isRequired: false),
-          UniversalType(
+        imports: const {'Another'},
+        parameters: {
+          const UniversalType(
+              type: 'integer',
+              name: 'intType',
+              isRequired: false,
+              nullable: true),
+          const UniversalType(
             type: 'string',
-            arrayDepth: 1,
+            wrappingCollections: [UniversalCollections.nullableList],
             name: 'list',
             isRequired: false,
           ),
-          UniversalType(type: 'Another', name: 'another', isRequired: false),
-          UniversalType(
+          const UniversalType(
+              type: 'Another',
+              name: 'another',
+              isRequired: false,
+              nullable: true),
+          const UniversalType(
             type: 'Another',
-            arrayDepth: 2,
+            wrappingCollections: [
+              UniversalCollections.list,
+              UniversalCollections.list,
+            ],
             name: 'anotherList',
             isRequired: true,
           ),
-        ],
+        },
       );
       const fillController = FillController(
-        programmingLanguage: ProgrammingLanguage.kotlin,
+        config: GeneratorConfig(
+          name: '',
+          outputDirectory: '',
+          language: ProgrammingLanguage.kotlin,
+        ),
       );
       final filledContent = fillController.fillDtoContent(dataClass);
       const expectedContents = '''
@@ -1060,31 +1357,42 @@ data class ClassName(
     var anotherList: List<List<Another>>,
 )
 ''';
-      expect(filledContent.contents, expectedContents);
+      expect(filledContent.content, expectedContents);
     });
   });
 
   group('Put required parameters first', () {
     test('dart + json_serializable', () async {
-      const dataClass = UniversalComponentClass(
+      final dataClass = UniversalComponentClass(
         name: 'ClassName',
-        imports: {'Another'},
-        parameters: [
-          UniversalType(
+        imports: const {'Another'},
+        parameters: {
+          const UniversalType(
             type: 'integer',
             name: 'intNotRequired',
             isRequired: false,
+            nullable: true,
           ),
-          UniversalType(type: 'integer', name: 'intRequired'),
-          UniversalType(
+          const UniversalType(
+              type: 'integer', name: 'intRequired', isRequired: true),
+          const UniversalType(
             type: 'Another',
             name: 'anotherNotRequired',
             isRequired: false,
+            nullable: true,
           ),
-          UniversalType(type: 'Another', name: 'list', arrayDepth: 1),
-        ],
+          const UniversalType(
+            type: 'Another',
+            name: 'list',
+            wrappingCollections: [UniversalCollections.list],
+            isRequired: true,
+          ),
+        },
       );
-      const fillController = FillController();
+      const fillController = FillController(
+        config:
+            GeneratorConfig(name: '', outputDirectory: '', includeIfNull: true),
+      );
       final filledContent = fillController.fillDtoContent(dataClass);
       const expectedContents = r'''
 import 'package:json_annotation/json_annotation.dart';
@@ -1104,38 +1412,53 @@ class ClassName {
   
   factory ClassName.fromJson(Map<String, Object?> json) => _$ClassNameFromJson(json);
   
+  @JsonKey(includeIfNull: false)
   final int? intNotRequired;
   final int intRequired;
+  @JsonKey(includeIfNull: false)
   final Another? anotherNotRequired;
   final List<Another> list;
 
   Map<String, Object?> toJson() => _$ClassNameToJson(this);
 }
 ''';
-      expect(filledContent.contents, expectedContents);
+      expect(filledContent.content, expectedContents);
     });
 
     test('dart + freezed', () async {
-      const dataClass = UniversalComponentClass(
+      final dataClass = UniversalComponentClass(
         name: 'ClassName',
-        imports: {'Another'},
-        parameters: [
-          UniversalType(
+        imports: const {'Another'},
+        parameters: {
+          const UniversalType(
             type: 'integer',
             name: 'intNotRequired',
             isRequired: false,
+            nullable: true,
           ),
-          UniversalType(type: 'integer', name: 'intRequired'),
-          UniversalType(
+          const UniversalType(
+              type: 'integer', name: 'intRequired', isRequired: true),
+          const UniversalType(
             type: 'Another',
             name: 'anotherNotRequired',
             isRequired: false,
+            nullable: true,
           ),
-          UniversalType(type: 'Another', name: 'list', arrayDepth: 1),
-        ],
+          const UniversalType(
+            type: 'Another',
+            name: 'list',
+            wrappingCollections: [UniversalCollections.list],
+            isRequired: true,
+          ),
+        },
       );
       const fillController = FillController(
-        jsonSerializer: JsonSerializer.freezed,
+        config: GeneratorConfig(
+          name: '',
+          outputDirectory: '',
+          jsonSerializer: JsonSerializer.freezed,
+          includeIfNull: true,
+        ),
       );
       final filledContent = fillController.fillDtoContent(dataClass);
       const expectedContents = r'''
@@ -1151,14 +1474,16 @@ class ClassName with _$ClassName {
   const factory ClassName({
     required int intRequired,
     required List<Another> list,
+    @JsonKey(includeIfNull: false)
     int? intNotRequired,
+    @JsonKey(includeIfNull: false)
     Another? anotherNotRequired,
   }) = _ClassName;
   
   factory ClassName.fromJson(Map<String, Object?> json) => _$ClassNameFromJson(json);
 }
 ''';
-      expect(filledContent.contents, expectedContents);
+      expect(filledContent.content, expectedContents);
     });
 
     test('kotlin + moshi', () async {
@@ -1178,9 +1503,13 @@ class ClassName with _$ClassName {
           UniversalEnumClass(
             name: 'EnumNameString',
             type: 'string',
-            items: UniversalEnumItem.listFromNames(
-              {'itemOne', 'ItemTwo', 'item_three', 'ITEM-FOUR', 'пятый'},
-            ),
+            items: UniversalEnumItem.listFromNames({
+              'itemOne',
+              'ItemTwo',
+              'item_three',
+              'ITEM-FOUR',
+              'пятый',
+            }),
           ),
           UniversalEnumClass(
             name: 'KeywordsName',
@@ -1190,20 +1519,24 @@ class ClassName with _$ClassName {
           UniversalEnumClass(
             name: 'EnumNameStringWithLeadingNumbers',
             type: 'string',
-            items: UniversalEnumItem.listFromNames(
-              {
-                '1itemOne',
-                '2ItemTwo',
-                '3item_three',
-                '4ITEM-FOUR',
-                '5иллегалчарактер',
-                '6 item six',
-              },
-            ),
+            items: UniversalEnumItem.listFromNames({
+              '1itemOne',
+              '2ItemTwo',
+              '3item_three',
+              '4ITEM-FOUR',
+              '5иллегалчарактер',
+              '6 item six',
+            }),
           ),
         ];
 
-        const fillController = FillController(unknownEnumValue: false);
+        const fillController = FillController(
+          config: GeneratorConfig(
+            name: '',
+            outputDirectory: '',
+            unknownEnumValue: false,
+          ),
+        );
         final files = <GeneratedFile>[];
         for (final enumClass in dataClasses) {
           files.add(fillController.fillDtoContent(enumClass));
@@ -1215,10 +1548,8 @@ import 'package:json_annotation/json_annotation.dart';
 enum EnumName {
   @JsonValue(1)
   value1,
-
   @JsonValue(2)
   value2,
-
   @JsonValue(3)
   value3;
 }
@@ -1231,16 +1562,12 @@ import 'package:json_annotation/json_annotation.dart';
 enum EnumNameString {
   @JsonValue('itemOne')
   itemOne,
-
   @JsonValue('ItemTwo')
   itemTwo,
-
   @JsonValue('item_three')
   itemThree,
-
   @JsonValue('ITEM-FOUR')
   itemFour,
-
   /// Incorrect name has been replaced. Original name: `пятый`.
   @JsonValue('пятый')
   undefined0;
@@ -1254,11 +1581,9 @@ enum KeywordsName {
   /// The name has been replaced because it contains a keyword. Original name: `FALSE`.
   @JsonValue('FALSE')
   valueFalse,
-
   /// The name has been replaced because it contains a keyword. Original name: `for`.
   @JsonValue('for')
   valueFor,
-
   /// The name has been replaced because it contains a keyword. Original name: `do`.
   @JsonValue('do')
   valueDo;
@@ -1272,29 +1597,24 @@ import 'package:json_annotation/json_annotation.dart';
 enum EnumNameStringWithLeadingNumbers {
   @JsonValue('1itemOne')
   value1itemOne,
-
   @JsonValue('2ItemTwo')
   value2ItemTwo,
-
   @JsonValue('3item_three')
   value3itemThree,
-
   @JsonValue('4ITEM-FOUR')
-  value4ItemFour,
-
+  value4itemFour,
   /// Incorrect name has been replaced. Original name: `5иллегалчарактер`.
   @JsonValue('5иллегалчарактер')
   undefined0,
-
   @JsonValue('6 item six')
   value6ItemSix;
 }
 ''';
 
-        expect(files[0].contents, expectedContent0);
-        expect(files[1].contents, expectedContent1);
-        expect(files[2].contents, expectedContent2);
-        expect(files[3].contents, expectedContent3);
+        expect(files[0].content, expectedContent0);
+        expect(files[1].content, expectedContent1);
+        expect(files[2].content, expectedContent2);
+        expect(files[3].content, expectedContent3);
       });
 
       test('with toJson() in enums', () async {
@@ -1307,14 +1627,23 @@ enum EnumNameStringWithLeadingNumbers {
           UniversalEnumClass(
             name: 'EnumNameString',
             type: 'string',
-            items: UniversalEnumItem.listFromNames(
-              {'itemOne', 'ItemTwo', 'item_three', 'ITEM-FOUR'},
-            ),
+            items: UniversalEnumItem.listFromNames({
+              'itemOne',
+              'ItemTwo',
+              'item_three',
+              'ITEM-FOUR',
+            }),
           ),
         ];
 
-        const fillController =
-            FillController(enumsToJson: true, unknownEnumValue: false);
+        const fillController = FillController(
+          config: GeneratorConfig(
+            name: '',
+            outputDirectory: '',
+            enumsToJson: true,
+            unknownEnumValue: false,
+          ),
+        );
         final files = <GeneratedFile>[];
         for (final enumClass in dataClasses) {
           files.add(fillController.fillDtoContent(enumClass));
@@ -1326,10 +1655,8 @@ import 'package:json_annotation/json_annotation.dart';
 enum EnumName {
   @JsonValue(1)
   value1(1),
-
   @JsonValue(2)
   value2(2),
-
   @JsonValue(3)
   value3(3);
 
@@ -1338,6 +1665,9 @@ enum EnumName {
   final int? json;
 
   int? toJson() => json;
+
+  @override
+  String toString() => json?.toString() ?? super.toString();
 }
 ''';
 
@@ -1348,13 +1678,10 @@ import 'package:json_annotation/json_annotation.dart';
 enum EnumNameString {
   @JsonValue('itemOne')
   itemOne('itemOne'),
-
   @JsonValue('ItemTwo')
   itemTwo('ItemTwo'),
-
   @JsonValue('item_three')
   itemThree('item_three'),
-
   @JsonValue('ITEM-FOUR')
   itemFour('ITEM-FOUR');
 
@@ -1363,11 +1690,14 @@ enum EnumNameString {
   final String? json;
 
   String? toJson() => json;
+
+  @override
+  String toString() => json?.toString() ?? super.toString();
 }
 ''';
 
-        expect(files[0].contents, expectedContent0);
-        expect(files[1].contents, expectedContent1);
+        expect(files[0].content, expectedContent0);
+        expect(files[1].content, expectedContent1);
       });
     });
 
@@ -1382,9 +1712,12 @@ enum EnumNameString {
           UniversalEnumClass(
             name: 'EnumNameString',
             type: 'string',
-            items: UniversalEnumItem.listFromNames(
-              {'itemOne', 'ItemTwo', 'item_three', 'ITEM-FOUR'},
-            ),
+            items: UniversalEnumItem.listFromNames({
+              'itemOne',
+              'ItemTwo',
+              'item_three',
+              'ITEM-FOUR',
+            }),
           ),
           UniversalEnumClass(
             name: 'KeywordsName',
@@ -1393,8 +1726,12 @@ enum EnumNameString {
           ),
         ];
         const fillController = FillController(
-          jsonSerializer: JsonSerializer.freezed,
-          unknownEnumValue: false,
+          config: GeneratorConfig(
+            name: '',
+            outputDirectory: '',
+            jsonSerializer: JsonSerializer.freezed,
+            unknownEnumValue: false,
+          ),
         );
         final files = <GeneratedFile>[];
         for (final enumClass in dataClasses) {
@@ -1407,10 +1744,8 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 enum EnumName {
   @JsonValue(1)
   value1,
-
   @JsonValue(2)
   value2,
-
   @JsonValue(3)
   value3;
 }
@@ -1423,13 +1758,10 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 enum EnumNameString {
   @JsonValue('itemOne')
   itemOne,
-
   @JsonValue('ItemTwo')
   itemTwo,
-
   @JsonValue('item_three')
   itemThree,
-
   @JsonValue('ITEM-FOUR')
   itemFour;
 }
@@ -1442,19 +1774,17 @@ enum KeywordsName {
   /// The name has been replaced because it contains a keyword. Original name: `FALSE`.
   @JsonValue('FALSE')
   valueFalse,
-
   /// The name has been replaced because it contains a keyword. Original name: `for`.
   @JsonValue('for')
   valueFor,
-
   /// The name has been replaced because it contains a keyword. Original name: `do`.
   @JsonValue('do')
   valueDo;
 }
 ''';
-        expect(files[0].contents, expectedContent0);
-        expect(files[1].contents, expectedContent1);
-        expect(files[2].contents, expectedContent2);
+        expect(files[0].content, expectedContent0);
+        expect(files[1].content, expectedContent1);
+        expect(files[2].content, expectedContent2);
       });
 
       test('with toJson()', () async {
@@ -1467,14 +1797,22 @@ enum KeywordsName {
           UniversalEnumClass(
             name: 'EnumNameString',
             type: 'string',
-            items: UniversalEnumItem.listFromNames(
-              {'itemOne', 'ItemTwo', 'item_three', 'ITEM-FOUR', 'Item five'},
-            ),
+            items: UniversalEnumItem.listFromNames({
+              'itemOne',
+              'ItemTwo',
+              'item_three',
+              'ITEM-FOUR',
+              'Item five',
+            }),
           ),
         ];
         const fillController = FillController(
-          jsonSerializer: JsonSerializer.freezed,
-          enumsToJson: true,
+          config: GeneratorConfig(
+            name: '',
+            outputDirectory: '',
+            jsonSerializer: JsonSerializer.freezed,
+            enumsToJson: true,
+          ),
         );
         final files = <GeneratedFile>[];
         for (final enumClass in dataClasses) {
@@ -1488,13 +1826,10 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 enum EnumName {
   @JsonValue(1)
   value1(1),
-
   @JsonValue(2)
   value2(2),
-
   @JsonValue(3)
   value3(3),
-
   /// Default value for all unparsed values, allows backward compatibility when adding new values on the backend.
   $unknown(null);
 
@@ -1508,6 +1843,11 @@ enum EnumName {
   final int? json;
 
   int? toJson() => json;
+
+  @override
+  String toString() => json?.toString() ?? super.toString();
+  /// Returns all defined enum values excluding the $unknown value.
+  static List<EnumName> get $valuesDefined => values.where((value) => value != $unknown).toList();
 }
 ''';
 
@@ -1518,19 +1858,14 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 enum EnumNameString {
   @JsonValue('itemOne')
   itemOne('itemOne'),
-
   @JsonValue('ItemTwo')
   itemTwo('ItemTwo'),
-
   @JsonValue('item_three')
   itemThree('item_three'),
-
   @JsonValue('ITEM-FOUR')
   itemFour('ITEM-FOUR'),
-
   @JsonValue('Item five')
   itemFive('Item five'),
-
   /// Default value for all unparsed values, allows backward compatibility when adding new values on the backend.
   $unknown(null);
 
@@ -1544,10 +1879,15 @@ enum EnumNameString {
   final String? json;
 
   String? toJson() => json;
+
+  @override
+  String toString() => json?.toString() ?? super.toString();
+  /// Returns all defined enum values excluding the $unknown value.
+  static List<EnumNameString> get $valuesDefined => values.where((value) => value != $unknown).toList();
 }
 ''';
-        expect(files[0].contents, expectedContent0);
-        expect(files[1].contents, expectedContent1);
+        expect(files[0].content, expectedContent0);
+        expect(files[1].content, expectedContent1);
       });
     });
 
@@ -1561,9 +1901,12 @@ enum EnumNameString {
         UniversalEnumClass(
           name: 'EnumNameString',
           type: 'string',
-          items: UniversalEnumItem.listFromNames(
-            {'itemOne', 'ItemTwo', 'item_three', 'ITEM-FOUR'},
-          ),
+          items: UniversalEnumItem.listFromNames({
+            'itemOne',
+            'ItemTwo',
+            'item_three',
+            'ITEM-FOUR',
+          }),
         ),
         UniversalEnumClass(
           name: 'KeywordsName',
@@ -1572,7 +1915,11 @@ enum EnumNameString {
         ),
       ];
       const fillController = FillController(
-        programmingLanguage: ProgrammingLanguage.kotlin,
+        config: GeneratorConfig(
+          name: '',
+          outputDirectory: '',
+          language: ProgrammingLanguage.kotlin,
+        ),
       );
       final files = <GeneratedFile>[];
       for (final enumClass in dataClasses) {
@@ -1627,9 +1974,9 @@ enum class KeywordsName {
     VALUE_DO,
 }
 ''';
-      expect(files[0].contents, expectedContent0);
-      expect(files[1].contents, expectedContent1);
-      expect(files[2].contents, expectedContent2);
+      expect(files[0].content, expectedContent0);
+      expect(files[1].content, expectedContent1);
+      expect(files[2].content, expectedContent2);
     });
   });
 
@@ -1640,7 +1987,9 @@ enum class KeywordsName {
         type: 'int',
         items: UniversalEnumItem.listFromNames({'-2', '-1', '0', '1'}),
       );
-      const fillController = FillController();
+      const fillController = FillController(
+        config: GeneratorConfig(name: '', outputDirectory: ''),
+      );
       final file = fillController.fillDtoContent(dataClass);
 
       const expectedContent = r'''
@@ -1650,16 +1999,12 @@ import 'package:json_annotation/json_annotation.dart';
 enum EnumName {
   @JsonValue(-2)
   valueMinus2(-2),
-
   @JsonValue(-1)
   valueMinus1(-1),
-
   @JsonValue(0)
   value0(0),
-
   @JsonValue(1)
   value1(1),
-
   /// Default value for all unparsed values, allows backward compatibility when adding new values on the backend.
   $unknown(null);
 
@@ -1671,10 +2016,15 @@ enum EnumName {
       );
 
   final int? json;
+
+  @override
+  String toString() => json?.toString() ?? super.toString();
+  /// Returns all defined enum values excluding the $unknown value.
+  static List<EnumName> get $valuesDefined => values.where((value) => value != $unknown).toList();
 }
 ''';
 
-      expect(file.contents, expectedContent);
+      expect(file.content, expectedContent);
     });
 
     test('dart + freezed', () async {
@@ -1684,7 +2034,11 @@ enum EnumName {
         items: UniversalEnumItem.listFromNames({'-2', '-1', '0', '1'}),
       );
       const fillController = FillController(
-        jsonSerializer: JsonSerializer.freezed,
+        config: GeneratorConfig(
+          name: '',
+          outputDirectory: '',
+          jsonSerializer: JsonSerializer.freezed,
+        ),
       );
       final file = fillController.fillDtoContent(dataClass);
 
@@ -1695,16 +2049,12 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 enum EnumName {
   @JsonValue(-2)
   valueMinus2(-2),
-
   @JsonValue(-1)
   valueMinus1(-1),
-
   @JsonValue(0)
   value0(0),
-
   @JsonValue(1)
   value1(1),
-
   /// Default value for all unparsed values, allows backward compatibility when adding new values on the backend.
   $unknown(null);
 
@@ -1716,10 +2066,15 @@ enum EnumName {
       );
 
   final int? json;
+
+  @override
+  String toString() => json?.toString() ?? super.toString();
+  /// Returns all defined enum values excluding the $unknown value.
+  static List<EnumName> get $valuesDefined => values.where((value) => value != $unknown).toList();
 }
 ''';
 
-      expect(file.contents, expectedContent);
+      expect(file.content, expectedContent);
     });
 
     test('kotlin + moshi', () async {
@@ -1729,7 +2084,11 @@ enum EnumName {
         items: UniversalEnumItem.listFromNames({'-2', '-1', '0', '1'}),
       );
       const fillController = FillController(
-        programmingLanguage: ProgrammingLanguage.kotlin,
+        config: GeneratorConfig(
+          name: '',
+          outputDirectory: '',
+          language: ProgrammingLanguage.kotlin,
+        ),
       );
       final file = fillController.fillDtoContent(dataClass);
       const expectedContent = '''
@@ -1748,39 +2107,44 @@ enum class EnumName {
     VALUE_1,
 }
 ''';
-      expect(file.contents, expectedContent);
+      expect(file.content, expectedContent);
     });
   });
 
   group('Typedef data class', () {
     test('dart', () async {
-      const dataClasses = [
+      final dataClasses = [
         UniversalComponentClass(
           name: 'Date',
-          imports: {},
-          parameters: [
-            UniversalType(type: 'string', format: 'date'),
-          ],
+          imports: const {},
+          parameters: {
+            const UniversalType(
+                type: 'string', format: 'date', isRequired: true),
+          },
           typeDef: true,
         ),
         UniversalComponentClass(
           name: 'BooleanList',
-          imports: {},
-          parameters: [
-            UniversalType(type: 'boolean', arrayDepth: 1),
-          ],
+          imports: const {},
+          parameters: {
+            const UniversalType(
+              type: 'boolean',
+              wrappingCollections: [UniversalCollections.list],
+              isRequired: true,
+            ),
+          },
           typeDef: true,
         ),
         UniversalComponentClass(
           name: 'AnotherValue',
-          imports: {'Another'},
-          parameters: [
-            UniversalType(type: 'Another'),
-          ],
+          imports: const {'Another'},
+          parameters: {const UniversalType(type: 'Another', isRequired: true)},
           typeDef: true,
         ),
       ];
-      const fillController = FillController();
+      const fillController = FillController(
+        config: GeneratorConfig(name: '', outputDirectory: ''),
+      );
       final files = <GeneratedFile>[];
       for (final enumClass in dataClasses) {
         files.add(fillController.fillDtoContent(enumClass));
@@ -1793,43 +2157,51 @@ typedef BooleanList = List<bool>;
 ''';
       const expectedContent2 = '''
 import 'another.dart';
+export 'another.dart';
 
 typedef AnotherValue = Another;
 ''';
-      expect(files[0].contents, expectedContent0);
-      expect(files[1].contents, expectedContent1);
-      expect(files[2].contents, expectedContent2);
+      expect(files[0].content, expectedContent0);
+      expect(files[1].content, expectedContent1);
+      expect(files[2].content, expectedContent2);
     });
 
     test('kotlin', () async {
-      const dataClasses = [
+      final dataClasses = [
         UniversalComponentClass(
           name: 'Date',
-          imports: {},
-          parameters: [
-            UniversalType(type: 'string', format: 'date'),
-          ],
+          imports: const {},
+          parameters: {
+            const UniversalType(
+                type: 'string', format: 'date', isRequired: true),
+          },
           typeDef: true,
         ),
         UniversalComponentClass(
           name: 'BooleanList',
-          imports: {},
-          parameters: [
-            UniversalType(type: 'boolean', arrayDepth: 1),
-          ],
+          imports: const {},
+          parameters: {
+            const UniversalType(
+              type: 'boolean',
+              wrappingCollections: [UniversalCollections.list],
+              isRequired: true,
+            ),
+          },
           typeDef: true,
         ),
         UniversalComponentClass(
           name: 'AnotherValue',
-          imports: {'Another'},
-          parameters: [
-            UniversalType(type: 'Another'),
-          ],
+          imports: const {'Another'},
+          parameters: {const UniversalType(type: 'Another', isRequired: true)},
           typeDef: true,
         ),
       ];
       const fillController = FillController(
-        programmingLanguage: ProgrammingLanguage.kotlin,
+        config: GeneratorConfig(
+          name: '',
+          outputDirectory: '',
+          language: ProgrammingLanguage.kotlin,
+        ),
       );
       final files = <GeneratedFile>[];
       for (final enumClass in dataClasses) {
@@ -1844,52 +2216,51 @@ typealias BooleanList = List<Boolean>;
       const expectedContent2 = '''
 typealias AnotherValue = Another;
 ''';
-      expect(files[0].contents, expectedContent0);
-      expect(files[1].contents, expectedContent1);
-      expect(files[2].contents, expectedContent2);
+      expect(files[0].content, expectedContent0);
+      expect(files[1].content, expectedContent1);
+      expect(files[2].content, expectedContent2);
     });
   });
 
   group('nullable', () {
     test('dart + json_serializable', () async {
-      const dataClass = UniversalComponentClass(
+      final dataClass = UniversalComponentClass(
         name: 'ClassName',
-        imports: {},
-        parameters: [
-          UniversalType(
+        imports: const {},
+        parameters: {
+          const UniversalType(
             type: 'string',
-            arrayDepth: 4,
+            wrappingCollections: [
+              UniversalCollections.nullableList,
+              UniversalCollections.list,
+              UniversalCollections.list,
+              UniversalCollections.listNullableItem,
+            ],
             name: 'list1',
             isRequired: false,
             nullable: true,
           ),
-          UniversalType(
+          const UniversalType(
             type: 'string',
             name: 'list2',
             isRequired: false,
             nullable: true,
           ),
-          UniversalType(
-            type: 'string',
-            name: 'list3',
-            isRequired: true,
-            nullable: false,
-          ),
-          UniversalType(
-            type: 'string',
-            name: 'list4',
-            isRequired: false,
-            nullable: false,
-          ),
-          UniversalType(
+          const UniversalType(type: 'string', name: 'list3', isRequired: true),
+          const UniversalType(
+              type: 'string', name: 'list4', isRequired: false, nullable: true),
+          const UniversalType(
             type: 'string',
             name: 'list5',
             isRequired: true,
             nullable: true,
           ),
-        ],
+        },
       );
-      const fillController = FillController();
+      const fillController = FillController(
+        config:
+            GeneratorConfig(name: '', outputDirectory: '', includeIfNull: true),
+      );
       final filledContent = fillController.fillDtoContent(dataClass);
       const expectedContents = r'''
 import 'package:json_annotation/json_annotation.dart';
@@ -1908,58 +2279,63 @@ class ClassName {
   
   factory ClassName.fromJson(Map<String, Object?> json) => _$ClassNameFromJson(json);
   
-  final List<List<List<List<String>>>>? list1;
+  @JsonKey(includeIfNull: false)
+  final List<List<List<List<String?>>>>? list1;
+  @JsonKey(includeIfNull: false)
   final String? list2;
   final String list3;
+  @JsonKey(includeIfNull: false)
   final String? list4;
+  @JsonKey(includeIfNull: true)
   final String? list5;
 
   Map<String, Object?> toJson() => _$ClassNameToJson(this);
 }
 ''';
-      expect(filledContent.contents, expectedContents);
+      expect(filledContent.content, expectedContents);
     });
 
     test('dart + freezed', () async {
-      const dataClass = UniversalComponentClass(
+      final dataClass = UniversalComponentClass(
         name: 'ClassName',
-        imports: {},
-        parameters: [
-          UniversalType(
+        imports: const {},
+        parameters: {
+          const UniversalType(
             type: 'string',
-            arrayDepth: 4,
+            wrappingCollections: [
+              UniversalCollections.nullableList,
+              UniversalCollections.list,
+              UniversalCollections.list,
+              UniversalCollections.listNullableItem,
+            ],
             name: 'list1',
             isRequired: false,
             nullable: true,
           ),
-          UniversalType(
+          const UniversalType(
             type: 'string',
             name: 'list2',
             isRequired: false,
             nullable: true,
           ),
-          UniversalType(
-            type: 'string',
-            name: 'list3',
-            isRequired: true,
-            nullable: false,
-          ),
-          UniversalType(
-            type: 'string',
-            name: 'list4',
-            isRequired: false,
-            nullable: false,
-          ),
-          UniversalType(
+          const UniversalType(type: 'string', name: 'list3', isRequired: true),
+          const UniversalType(
+              type: 'string', name: 'list4', isRequired: false, nullable: true),
+          const UniversalType(
             type: 'string',
             name: 'list5',
             isRequired: true,
             nullable: true,
           ),
-        ],
+        },
       );
       const fillController = FillController(
-        jsonSerializer: JsonSerializer.freezed,
+        config: GeneratorConfig(
+          name: '',
+          outputDirectory: '',
+          jsonSerializer: JsonSerializer.freezed,
+          includeIfNull: true,
+        ),
       );
       final filledContent = fillController.fillDtoContent(dataClass);
       const expectedContents = r'''
@@ -1972,58 +2348,62 @@ part 'class_name.g.dart';
 class ClassName with _$ClassName {
   const factory ClassName({
     required String list3,
+    @JsonKey(includeIfNull: true)
     required String? list5,
-    List<List<List<List<String>>>>? list1,
+    @JsonKey(includeIfNull: false)
+    List<List<List<List<String?>>>>? list1,
+    @JsonKey(includeIfNull: false)
     String? list2,
+    @JsonKey(includeIfNull: false)
     String? list4,
   }) = _ClassName;
   
   factory ClassName.fromJson(Map<String, Object?> json) => _$ClassNameFromJson(json);
 }
 ''';
-      expect(filledContent.contents, expectedContents);
+      expect(filledContent.content, expectedContents);
     });
 
     test('kotlin + moshi', () async {
-      const dataClass = UniversalComponentClass(
+      final dataClass = UniversalComponentClass(
         name: 'ClassName',
-        imports: {},
-        parameters: [
-          UniversalType(
+        imports: const {},
+        parameters: {
+          const UniversalType(
             type: 'string',
-            arrayDepth: 4,
+            wrappingCollections: [
+              UniversalCollections.nullableList,
+              UniversalCollections.list,
+              UniversalCollections.list,
+              UniversalCollections.listNullableItem,
+            ],
             name: 'list1',
             isRequired: false,
             nullable: true,
           ),
-          UniversalType(
+          const UniversalType(
             type: 'string',
             name: 'list2',
             isRequired: false,
             nullable: true,
           ),
-          UniversalType(
-            type: 'string',
-            name: 'list3',
-            isRequired: true,
-            nullable: false,
-          ),
-          UniversalType(
-            type: 'string',
-            name: 'list4',
-            isRequired: false,
-            nullable: false,
-          ),
-          UniversalType(
+          const UniversalType(type: 'string', name: 'list3', isRequired: true),
+          const UniversalType(
+              type: 'string', name: 'list4', isRequired: false, nullable: true),
+          const UniversalType(
             type: 'string',
             name: 'list5',
             isRequired: true,
             nullable: true,
           ),
-        ],
+        },
       );
       const fillController = FillController(
-        programmingLanguage: ProgrammingLanguage.kotlin,
+        config: GeneratorConfig(
+          name: '',
+          outputDirectory: '',
+          language: ProgrammingLanguage.kotlin,
+        ),
       );
       final filledContent = fillController.fillDtoContent(dataClass);
       const expectedContent = '''
@@ -2032,61 +2412,69 @@ import com.squareup.moshi.JsonClass
 
 @JsonClass(generateAdapter = true)
 data class ClassName(
-    var list1: List<List<List<List<String>>>>?,
+    var list1: List<List<List<List<String?>>>>?,
     var list2: String?,
     var list3: String,
     var list4: String?,
     var list5: String?,
 )
 ''';
-      expect(filledContent.contents, expectedContent);
+      expect(filledContent.content, expectedContent);
     });
   });
 
   group('description', () {
     test('dart + json_serializable', () async {
-      const dataClass = UniversalComponentClass(
+      final dataClass = UniversalComponentClass(
         name: 'ClassName',
-        imports: {},
+        imports: const {},
         description: 'Test class',
-        parameters: [
-          UniversalType(
+        parameters: {
+          const UniversalType(
             type: 'string',
             description: 'Some string',
             name: 'stringType',
+            isRequired: true,
           ),
-          UniversalType(
+          const UniversalType(
             type: 'string',
             description: 'Default value',
             name: 'defaultType',
             defaultValue: 'str',
+            isRequired: true,
           ),
-          UniversalType(
+          const UniversalType(
             type: 'string',
             description: 'JsonKey here',
             name: 'jsonKeyValue',
             jsonKey: 'json_key_value',
+            isRequired: true,
           ),
-          UniversalType(
+          const UniversalType(
             type: 'string',
             description: 'Mega mind',
             name: 'megaMind',
             jsonKey: 'mega_MIND',
+            isRequired: true,
           ),
-          UniversalType(
+          const UniversalType(
             type: 'object',
             description: '',
             name: 'emptyDescription',
+            isRequired: true,
           ),
-          UniversalType(
+          const UniversalType(
             type: 'string',
             description: 'List of data\nThis data is a list',
-            arrayDepth: 1,
+            wrappingCollections: [UniversalCollections.list],
             name: 'list',
+            isRequired: true,
           ),
-        ],
+        },
       );
-      const fillController = FillController();
+      const fillController = FillController(
+        config: GeneratorConfig(name: '', outputDirectory: ''),
+      );
       final filledContent = fillController.fillDtoContent(dataClass);
       const expectedContents = r'''
 import 'package:json_annotation/json_annotation.dart';
@@ -2120,7 +2508,7 @@ class ClassName {
   /// Mega mind
   @JsonKey(name: 'mega_MIND')
   final String megaMind;
-  final Object emptyDescription;
+  final dynamic emptyDescription;
 
   /// List of data.
   /// This data is a list.
@@ -2129,53 +2517,63 @@ class ClassName {
   Map<String, Object?> toJson() => _$ClassNameToJson(this);
 }
 ''';
-      expect(filledContent.contents, expectedContents);
+      expect(filledContent.content, expectedContents);
     });
 
     test('dart + freezed', () async {
-      const dataClass = UniversalComponentClass(
+      final dataClass = UniversalComponentClass(
         name: 'ClassName',
-        imports: {},
+        imports: const {},
         description: 'Test class',
-        parameters: [
-          UniversalType(
+        parameters: {
+          const UniversalType(
             type: 'string',
             description: 'Some string',
             name: 'stringType',
+            isRequired: true,
           ),
-          UniversalType(
+          const UniversalType(
             type: 'string',
             description: 'Default value',
             name: 'defaultType',
             defaultValue: 'str',
+            isRequired: true,
           ),
-          UniversalType(
+          const UniversalType(
             type: 'string',
             description: 'JsonKey here',
             name: 'jsonKeyValue',
             jsonKey: 'json_key_value',
+            isRequired: true,
           ),
-          UniversalType(
+          const UniversalType(
             type: 'string',
             description: 'Mega mind',
             name: 'megaMind',
             jsonKey: 'mega_MIND',
+            isRequired: true,
           ),
-          UniversalType(
+          const UniversalType(
             type: 'object',
             description: '',
             name: 'emptyDescription',
+            isRequired: true,
           ),
-          UniversalType(
+          const UniversalType(
             type: 'string',
             description: 'List of data\nThis data is a list',
-            arrayDepth: 1,
+            wrappingCollections: [UniversalCollections.list],
             name: 'list',
+            isRequired: true,
           ),
-        ],
+        },
       );
       const fillController = FillController(
-        jsonSerializer: JsonSerializer.freezed,
+        config: GeneratorConfig(
+          name: '',
+          outputDirectory: '',
+          jsonSerializer: JsonSerializer.freezed,
+        ),
       );
       final filledContent = fillController.fillDtoContent(dataClass);
       const expectedContents = r'''
@@ -2198,7 +2596,7 @@ class ClassName with _$ClassName {
     /// Mega mind
     @JsonKey(name: 'mega_MIND')
     required String megaMind,
-    required Object emptyDescription,
+    required dynamic emptyDescription,
 
     /// List of data.
     /// This data is a list.
@@ -2212,53 +2610,63 @@ class ClassName with _$ClassName {
   factory ClassName.fromJson(Map<String, Object?> json) => _$ClassNameFromJson(json);
 }
 ''';
-      expect(filledContent.contents, expectedContents);
+      expect(filledContent.content, expectedContents);
     });
 
     test('kotlin + moshi ', () async {
-      const dataClass = UniversalComponentClass(
+      final dataClass = UniversalComponentClass(
         name: 'ClassName',
-        imports: {},
+        imports: const {},
         description: 'Test class',
-        parameters: [
-          UniversalType(
+        parameters: {
+          const UniversalType(
             type: 'string',
             description: 'Some string',
             name: 'stringType',
+            isRequired: true,
           ),
-          UniversalType(
+          const UniversalType(
             type: 'string',
             description: 'Default value',
             name: 'defaultType',
             defaultValue: 'str',
+            isRequired: true,
           ),
-          UniversalType(
+          const UniversalType(
             type: 'string',
             description: 'JsonKey here',
             name: 'jsonKeyValue',
             jsonKey: 'json_key_value',
+            isRequired: true,
           ),
-          UniversalType(
+          const UniversalType(
             type: 'string',
             description: 'Mega mind',
             name: 'megaMind',
             jsonKey: 'mega_MIND',
+            isRequired: true,
           ),
-          UniversalType(
+          const UniversalType(
             type: 'object',
             description: '',
             name: 'emptyDescription',
+            isRequired: true,
           ),
-          UniversalType(
+          const UniversalType(
             type: 'string',
             description: 'List of data',
-            arrayDepth: 1,
+            wrappingCollections: [UniversalCollections.list],
             name: 'list',
+            isRequired: true,
           ),
-        ],
+        },
       );
       const fillController = FillController(
-        programmingLanguage: ProgrammingLanguage.kotlin,
+        config: GeneratorConfig(
+          name: '',
+          outputDirectory: '',
+          language: ProgrammingLanguage.kotlin,
+        ),
       );
       final filledContent = fillController.fillDtoContent(dataClass);
       const expectedContent = '''
@@ -2283,7 +2691,262 @@ data class ClassName(
     var list: List<String>,
 )
 ''';
-      expect(filledContent.contents, expectedContent);
+      expect(filledContent.content, expectedContent);
+    });
+  });
+
+  group('Union types', () {
+    UniversalComponentClass buildUnionDataClass() => UniversalComponentClass(
+          name: 'AnimalUnion',
+          imports: const {'cat', 'dog'},
+          parameters: const {},
+          undiscriminatedUnionVariants: {
+            'Cat': {
+              const UniversalType(
+                type: 'int',
+                name: 'mewCount',
+                isRequired: true,
+              ),
+            },
+            'Dog': {
+              const UniversalType(
+                type: 'String',
+                name: 'barkSound',
+                isRequired: true,
+              ),
+            },
+          },
+        );
+
+    test('dart_mappable unions use sealed naming', () {
+      const controller = FillController(
+        config: GeneratorConfig(
+          name: '',
+          outputDirectory: '',
+          jsonSerializer: JsonSerializer.dartMappable,
+        ),
+      );
+
+      final generated = controller.fillDtoContent(buildUnionDataClass());
+
+      expect(generated.name, 'models/animal_sealed.dart');
+
+      const expectedContents = r'''
+import 'package:dart_mappable/dart_mappable.dart';
+
+import 'cat.dart';
+import 'dog.dart';
+import 'cat.dart';
+import 'dog.dart';
+
+part 'animal_sealed.mapper.dart';
+
+@MappableClass(includeSubClasses: [AnimalSealedCat, AnimalSealedDog])
+sealed class AnimalSealed with AnimalSealedMappable {
+  const AnimalSealed();
+
+  @Deprecated('Use Dart pattern matching with sealed class')
+  T when<T>({
+    required T Function(AnimalSealedCat cat) cat,
+    required T Function(AnimalSealedDog dog) dog,
+  }) {
+    return maybeWhen(
+      cat: cat,
+      dog: dog,
+    )!;
+  }
+
+  @Deprecated('Use Dart pattern matching with sealed class')
+  T? maybeWhen<T>({
+    T Function(AnimalSealedCat cat)? cat,
+    T Function(AnimalSealedDog dog)? dog,
+  }) {
+    return switch (this) {
+      AnimalSealedCat _ => cat?.call(this as AnimalSealedCat),
+      AnimalSealedDog _ => dog?.call(this as AnimalSealedDog),
+      _ => throw Exception("Unhandled type: ${this.runtimeType}"),
+    };
+  }
+
+  static AnimalSealed fromJson(Map<String, dynamic> json) {
+    return AnimalSealedDeserializer.tryDeserialize(json);
+  }
+
+}
+
+extension AnimalSealedDeserializer on AnimalSealed {
+  static AnimalSealed tryDeserialize(Map<String, dynamic> json) {
+    try {
+      return AnimalSealedCatMapper.ensureInitialized().decodeMap<AnimalSealedCat>(json);
+    } catch (_) {}
+    try {
+      return AnimalSealedDogMapper.ensureInitialized().decodeMap<AnimalSealedDog>(json);
+    } catch (_) {}
+
+
+    throw FormatException('Could not determine the correct type for AnimalSealed from: $json');
+  }
+}
+
+@MappableClass()
+class AnimalSealedCat extends AnimalSealed with AnimalSealedCatMappable implements Cat {
+  @override
+  final int mewCount;
+
+  const AnimalSealedCat({
+    required this.mewCount,
+  });
+}
+
+@MappableClass()
+class AnimalSealedDog extends AnimalSealed with AnimalSealedDogMappable implements Dog {
+  @override
+  final String barkSound;
+
+  const AnimalSealedDog({
+    required this.barkSound,
+  });
+}
+''';
+      expect(generated.content, expectedContents);
+    });
+
+    test('json_serializable unions use sealed naming', () {
+      const controller = FillController(
+        config: GeneratorConfig(
+          name: '',
+          outputDirectory: '',
+        ),
+      );
+
+      final generated = controller.fillDtoContent(buildUnionDataClass());
+
+      expect(generated.name, 'models/animal_sealed.dart');
+
+      const expectedContents = r'''
+import 'package:json_annotation/json_annotation.dart';
+
+import 'cat.dart';
+import 'dog.dart';
+import 'cat.dart';
+import 'dog.dart';
+
+
+part 'animal_sealed.g.dart';
+
+@JsonSerializable(createFactory: false)
+sealed class AnimalSealed {
+  const AnimalSealed();
+  
+  factory AnimalSealed.fromJson(Map<String, dynamic> json) =>
+      AnimalSealedDeserializer.tryDeserialize(json);
+  
+  Map<String, dynamic> toJson();
+}
+
+extension AnimalSealedDeserializer on AnimalSealed {
+  static AnimalSealed tryDeserialize(Map<String, dynamic> json) {
+    try {
+      return AnimalSealedCat.fromJson(json);
+    } catch (_) {}
+    try {
+      return AnimalSealedDog.fromJson(json);
+    } catch (_) {}
+
+
+    throw FormatException('Could not determine the correct type for AnimalSealed from: $json');
+  }
+}
+
+@JsonSerializable()
+class AnimalSealedCat extends AnimalSealed implements Cat {
+  @override
+  final int mewCount;
+
+  const AnimalSealedCat({
+    required this.mewCount,
+  });
+  
+  factory AnimalSealedCat.fromJson(Map<String, dynamic> json) =>
+      _$AnimalSealedCatFromJson(json);
+      
+  @override
+  Map<String, dynamic> toJson() => _$AnimalSealedCatToJson(this);
+}
+@JsonSerializable()
+class AnimalSealedDog extends AnimalSealed implements Dog {
+  @override
+  final String barkSound;
+
+  const AnimalSealedDog({
+    required this.barkSound,
+  });
+  
+  factory AnimalSealedDog.fromJson(Map<String, dynamic> json) =>
+      _$AnimalSealedDogFromJson(json);
+      
+  @override
+  Map<String, dynamic> toJson() => _$AnimalSealedDogToJson(this);
+}
+''';
+      expect(generated.content, expectedContents);
+    });
+
+    test('freezed discriminated union with keyword factory names', () {
+      final dataClass = UniversalComponentClass(
+        name: 'DeviceTypeConfig',
+        imports: const {},
+        parameters: const {},
+        discriminator: (
+          propertyName: 'deviceType',
+          discriminatorValueToRefMapping: const {
+            'DEFAULT': '#/components/schemas/DefaultConfig',
+            'CUSTOM': '#/components/schemas/CustomConfig',
+          },
+          refProperties: {
+            '#/components/schemas/DefaultConfig': const {},
+            '#/components/schemas/CustomConfig': {
+              const UniversalType(
+                type: 'string',
+                name: 'configValue',
+                isRequired: true,
+              ),
+            },
+          },
+        ),
+      );
+
+      const controller = FillController(
+        config: GeneratorConfig(
+          name: '',
+          outputDirectory: '',
+          jsonSerializer: JsonSerializer.freezed,
+        ),
+      );
+
+      final generated = controller.fillDtoContent(dataClass);
+
+      const expectedContents = r'''
+import 'package:freezed_annotation/freezed_annotation.dart';
+
+part 'device_type_config.freezed.dart';
+part 'device_type_config.g.dart';
+
+@Freezed(unionKey: 'deviceType')
+sealed class DeviceTypeConfig with _$DeviceTypeConfig {
+  @FreezedUnionValue('DEFAULT')
+  const factory DeviceTypeConfig.defaultValue() = DeviceTypeConfigDefault;
+
+  @FreezedUnionValue('CUSTOM')
+  const factory DeviceTypeConfig.custom({
+    required String configValue,
+  }) = DeviceTypeConfigCustom;
+
+  
+  factory DeviceTypeConfig.fromJson(Map<String, Object?> json) => _$DeviceTypeConfigFromJson(json);
+}
+''';
+      expect(generated.content, expectedContents);
     });
   });
 }

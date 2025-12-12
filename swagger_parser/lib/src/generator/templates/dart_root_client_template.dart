@@ -1,6 +1,6 @@
-import '../../utils/case_utils.dart';
-import '../../utils/utils.dart';
-import '../models/open_api_info.dart';
+import 'package:swagger_parser/src/parser/model/normalized_identifier.dart';
+import 'package:swagger_parser/src/parser/swagger_parser_core.dart';
+import 'package:swagger_parser/src/utils/base_utils.dart';
 
 String dartRootClientTemplate({
   required OpenApiInfo openApiInfo,
@@ -9,6 +9,7 @@ String dartRootClientTemplate({
   required String postfix,
   required bool putClientsInFolder,
   required bool markFileAsGenerated,
+  Map<String, String>? clientsNameMap,
 }) {
   if (clientsNames.isEmpty) {
     return '';
@@ -17,18 +18,24 @@ String dartRootClientTemplate({
   final className = name.toPascal;
 
   final title = openApiInfo.title;
-  final version = openApiInfo.version;
+  final summary = openApiInfo.summary;
+  final description = openApiInfo.description;
+  final version = openApiInfo.apiVersion;
+  final fullDescription = switch ((summary, description)) {
+    (null, null) => null,
+    (_, null) => summary,
+    (null, _) => description,
+    (_, _) => '$summary\n\n$description',
+  };
 
   final comment =
       '${title ?? ''}${version != null ? ' `v$version`' : ''}';
 
   return '''
-${generatedFileComment(
-    markFileAsGenerated: markFileAsGenerated,
-  )}import 'package:injectable/injectable.dart';
+import 'package:injectable/injectable.dart';
 import 'package:rider/core/injector.dart';
 import 'package:rider/core/config/app_config.dart';
-${_clientsImport(clientsNames, postfix, putClientsInFolder: putClientsInFolder)}
+${_clientsImport(clientsNames, postfix, putClientsInFolder: putClientsInFolder, clientsNameMap: clientsNameMap)}
 import '../net/net_request.dart';
 
 ${descriptionComment(comment)}
@@ -45,6 +52,8 @@ class $className {
 
   @factoryMethod
   static $className create() => $className(dio: NetRequest(), baseUrl: AppConfig.apiUrl);
+  
+  static String get version => '${openApiInfo.apiVersion ?? ''}';
 
 ${_privateFields(clientsNames, postfix)}
 
@@ -53,16 +62,14 @@ ${_getters(clientsNames, postfix)}
 ''';
 }
 
-String _clientsImport(
-  Set<String> imports,
-  String postfix, {
-  required bool putClientsInFolder,
-}) =>
-    '\n${imports.map(
-          (import) =>
-              "import '${putClientsInFolder ? 'clients' : import.toSnake}/"
-              "${'${import}_$postfix'.toSnake}.dart';",
-        ).join('\n')}\n';
+String _clientsImport(Set<String> imports, String postfix,
+    {required bool putClientsInFolder, Map<String, String>? clientsNameMap}) {
+  return '\n${imports.map((import) {
+    final snakeName = clientsNameMap?[import] ?? import.toSnake;
+    return "import '${putClientsInFolder ? 'clients' : snakeName}/"
+        "${snakeName}_${postfix.toSnake}.dart';";
+  }).join('\n')}\n';
+}
 
 String _privateFields(Set<String> names, String postfix) => names
     .map((n) => '  ${n.toPascal + postfix.toPascal}? _${n.toCamel};')

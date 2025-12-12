@@ -1,9 +1,13 @@
-import '../generator/models/universal_data_class.dart';
-import 'case_utils.dart';
-import 'dart_keywords.dart';
+import 'package:collection/collection.dart';
+import 'package:swagger_parser/src/parser/model/normalized_identifier.dart';
+import 'package:swagger_parser/src/parser/model/universal_data_class.dart';
+import 'package:swagger_parser/src/parser/utils/dart_keywords.dart';
 
+/// Extension for utils
 extension StringTypeX on String {
-  String toDartType([String? format]) => switch (this) {
+  /// Convert string to dart type
+  String toDartType({String? format, bool useMultipartFile = false}) =>
+      switch (this) {
         'integer' => 'int',
         'number' => switch (format) {
             'float' || 'double' => 'double',
@@ -12,16 +16,28 @@ extension StringTypeX on String {
             _ => 'num',
           },
         'string' => switch (format) {
-            'binary' => 'File',
+            'binary' => useMultipartFile ? 'MultipartFile' : 'File',
             'date' || 'date-time' => 'DateTime',
             _ => 'String',
           },
-        'file' => 'File',
+        'file' => useMultipartFile ? 'MultipartFile' : 'File',
         'boolean' => 'bool',
-        'object' || 'null' => 'Object',
-        _ => this
+        // https://github.com/trevorwang/retrofit.dart/issues/631
+        // https://github.com/Carapacik/swagger_parser/issues/110
+        'object' || 'null' => 'dynamic',
+        _ => startsWith('[') ? _parseTypeList(this) : this,
       };
 
+  String _parseTypeList(String types) {
+    final typesList = types.replaceAll(RegExp(r'[\[\] ]'), '').split(',');
+    if (typesList.length == 2 && typesList.contains('null')) {
+      final type = typesList.firstWhere((e) => e != 'null').toDartType();
+      return '$type?';
+    }
+    return 'dynamic';
+  }
+
+  /// Convert string to kotlin type
   String toKotlinType([String? format]) => switch (this) {
         'integer' => 'Int',
         'number' => switch (format) {
@@ -38,7 +54,7 @@ extension StringTypeX on String {
         'file' => 'MultipartBody.Part',
         'boolean' => 'Boolean',
         'object' => 'Any',
-        _ => this
+        _ => this,
       };
 }
 
@@ -49,6 +65,15 @@ const _objectConst = 'object';
 int _uniqueObjectCounter = 0;
 int _uniqueEnumCounter = 0;
 
+/// In general, it is worth putting the processing of class names, methods, fields.
+/// in some separate layer from the parser and templates, so as not to write such crutches with a reset
+/// The reset itself is needed to update the status during tests.
+void resetUniqueNameCounters() {
+  _uniqueObjectCounter = 0;
+  _uniqueEnumCounter = 0;
+}
+
+/// Unique name for object classes
 String uniqueName({bool isEnum = false}) {
   final String name;
   if (isEnum) {
@@ -61,7 +86,7 @@ String uniqueName({bool isEnum = false}) {
   return name;
 }
 
-final _enumNameRegExp = RegExp(r'^[a-zA-Z\d_-\s]*$');
+final _enumNameRegExp = RegExp(r'^[a-zA-Z\d_\s-]*$');
 final _startWithNumberRegExp = RegExp(r'^-?\d+');
 
 /// Protect default enum value from incorrect symbols, keywords, etc.
@@ -107,7 +132,8 @@ String? protectDefaultValue(
 }
 
 /// Protect enum items names from incorrect symbols, keywords, etc.
-Set<UniversalEnumItem> protectEnumItemsNames(Iterable<String> names) {
+Set<UniversalEnumItem> protectEnumItemsNames(Iterable<String> names,
+    {Iterable<String>? values}) {
   var counter = 0;
   final items = <UniversalEnumItem>{};
 
@@ -123,38 +149,43 @@ Set<UniversalEnumItem> protectEnumItemsNames(Iterable<String> names) {
     return newName;
   }
 
-  for (final name in names) {
+  String leadingDashToMinus(String name) {
+    if (name.startsWith('-')) {
+      return 'minus ${name.substring(1)}';
+    }
+    return name;
+  }
+
+  names.forEachIndexed((index, name) {
     final (newName, renameDescription) = switch (name) {
       _
           when _startWithNumberRegExp.hasMatch(name) &&
               _enumNameRegExp.hasMatch(numberEnumItemName(name).toCamel) =>
-        (
-          numberEnumItemName(name),
-          null,
-        ),
+        (numberEnumItemName(name), null),
       _ when !_enumNameRegExp.hasMatch(name) => (
           uniqueEnumItemName(),
-          'Incorrect name has been replaced. Original name: `$name`.'
+          'Incorrect name has been replaced. Original name: `$name`.',
         ),
-      _ when dartKeywords.contains(name.toCamel) => (
+      _ when dartEnumMemberKeywords.contains(name.toCamel) => (
           '${name}X',
-          'The name has been replaced because it contains a keyword. Original name: `$name`.'
+          'The name has been replaced because it contains a keyword. Original name: `$name`.',
         ),
-      _ => (name, null),
+      _ => (leadingDashToMinus(name), null),
     };
+    final jsonKey = values?.elementAtOrNull(index) ?? name;
     items.add(
       UniversalEnumItem(
         name: newName,
-        jsonKey: name,
+        jsonKey: jsonKey,
         description: renameDescription,
       ),
     );
-  }
+  });
 
   return items;
 }
 
-final _nameRegExp = RegExp(r'^[a-zA-Z_][a-zA-Z\d_]*$');
+final _nameRegExp = RegExp(r'^[a-zA-Z_-][a-zA-Z\d_-]*$');
 
 /// Protect name from incorrect symbols, keywords, etc.
 (String? newName, String? description) protectName(
@@ -168,16 +199,30 @@ final _nameRegExp = RegExp(r'^[a-zA-Z_][a-zA-Z\d_]*$');
     null || '' => uniqueIfNull
         ? (
             uniqueName(isEnum: isEnum),
-            'Name not received and was auto-generated.'
+            'Name not received and was auto-generated.',
           )
         : (null, null),
+    // https://github.com/Carapacik/swagger_parser/issues/262
+    _
+        when name.startsWith(r'$') &&
+            name
+                    .split('')
+                    .where(
+                      (e) => e == r'$',
+                    )
+                    .length ==
+                1 =>
+      (
+        name.substring(1),
+        'Incorrect name has been replaced. Original name: `$name`.',
+      ),
     _ when !_nameRegExp.hasMatch(name) => (
         uniqueName(isEnum: isEnum),
-        'Incorrect name has been replaced. Original name: `$name`.'
+        'Incorrect name has been replaced. Original name: `$name`.',
       ),
     _ when dartKeywords.contains(name.toCamel) => (
         '${name}X',
-        'The name has been replaced because it contains a keyword. Original name: `$name`.'
+        'The name has been replaced because it contains a keyword. Original name: `$name`.',
       ),
     _ => (name, null),
   };
@@ -188,7 +233,10 @@ final _nameRegExp = RegExp(r'^[a-zA-Z_][a-zA-Z\d_]*$');
       (null, null) => null,
       (null, _) => error,
       (_, null) => description,
-      (_, _) => '$description\n\n$error',
+      (_, _) => '$description\n$error',
     },
   );
 }
+
+/// Protect JsonKeys from incorrect symbols, keywords, etc.
+String? protectJsonKey(String? name) => name?.replaceAll(r'$', r'\$');

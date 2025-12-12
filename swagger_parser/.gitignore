@@ -2,4 +2,8 @@
 .packages
 build/
 pubspec.lock
-.idea/
+.idea
+swagger_parser.yaml
+!example/swagger_parser.yaml
+**/generated_files/**
+test_project/

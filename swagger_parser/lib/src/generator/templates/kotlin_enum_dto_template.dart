@@ -1,16 +1,12 @@
 import 'package:collection/collection.dart';
-
-import '../../utils/case_utils.dart';
-import '../../utils/utils.dart';
-import '../models/universal_data_class.dart';
+import 'package:swagger_parser/src/parser/model/normalized_identifier.dart';
+import 'package:swagger_parser/src/parser/swagger_parser_core.dart';
+import 'package:swagger_parser/src/utils/base_utils.dart';
 
 /// Provides template for generating kotlin enum DTO
-String kotlinEnumDtoTemplate(
-  UniversalEnumClass dataClass, {
-  required bool markFileAsGenerated,
-}) {
+String kotlinEnumDtoTemplate(UniversalEnumClass dataClass) {
   return '''
-${generatedFileComment(markFileAsGenerated: markFileAsGenerated, ignoreLints: false)}import com.squareup.moshi.Json
+import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 
 @JsonClass(generateAdapter = true)
@@ -23,7 +19,7 @@ String _parameters(UniversalEnumClass dataClass) => dataClass.items
     .mapIndexed(
       (i, e) =>
           '${i != 0 && e.description != null ? '\n\n' : '\n'}${descriptionComment(e.description, tab: '    ')}'
-          '${dataClass.type != 'string' || e.jsonKey != e.name.toScreamingSnake ? '    @Json("${e.jsonKey}")' : ''}\n    '
+          '${dataClass.type != 'string' || e.jsonKey != e.name.toScreamingSnake ? '    @Json("${protectJsonKey(e.jsonKey)}")' : ''}\n    '
           '${e.name.toScreamingSnake},',
     )
     .join();

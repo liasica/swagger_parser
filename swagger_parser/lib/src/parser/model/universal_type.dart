@@ -1,21 +1,32 @@
-import '../../utils/type_utils.dart';
-import 'programming_language.dart';
+import 'package:collection/collection.dart';
+import 'package:meta/meta.dart';
+import 'package:swagger_parser/src/parser/model/universal_collections.dart';
 
 /// Universal template for containing information about type
+@immutable
 final class UniversalType {
   /// Constructor for [UniversalType]
   const UniversalType({
     required this.type,
+    required this.isRequired,
     this.name,
     this.description,
     this.format,
     this.jsonKey,
     this.defaultValue,
-    this.isRequired = true,
     this.nullable = false,
-    this.arrayDepth = 0,
+    this.wrappingCollections = const [],
     this.enumType,
-    this.mapType,
+    this.min,
+    this.max,
+    this.minItems,
+    this.maxItems,
+    this.minLength,
+    this.maxLength,
+    this.pattern,
+    this.uniqueItems,
+    this.deprecated = false,
+    this.referencedNullable = false,
   });
 
   /// Object type
@@ -49,14 +60,25 @@ final class UniversalType {
 
   /// Array depth, 0 if not a list
   /// if arrayDepth = 2
-  /// List<List<Object>>
-  final int arrayDepth;
+  /// `List<List<Object>>`
+  final List<UniversalCollections> wrappingCollections;
 
   /// Whether or not this field is nullable
   final bool nullable;
+  final double? min;
+  final double? max;
+  final int? minItems;
+  final int? maxItems;
+  final int? minLength;
+  final int? maxLength;
+  final String? pattern;
+  final bool? uniqueItems;
 
-  /// If not null means this is map with key type
-  final String? mapType;
+  /// Whether or not this field is deprecated
+  final bool deprecated;
+
+  /// Whether this property references a nullable schema
+  final bool referencedNullable;
 
   /// Copy of [UniversalType] with new values
   UniversalType copyWith({
@@ -68,9 +90,18 @@ final class UniversalType {
     String? defaultValue,
     bool? isRequired,
     String? enumType,
-    int? arrayDepth,
+    List<UniversalCollections>? wrappingCollections,
     bool? nullable,
-    String? mapType,
+    double? min,
+    double? max,
+    int? minItems,
+    int? maxItems,
+    int? minLength,
+    int? maxLength,
+    String? pattern,
+    bool? uniqueItems,
+    bool? deprecated,
+    bool? referencedNullable,
   }) {
     return UniversalType(
       type: type ?? this.type,
@@ -81,9 +112,18 @@ final class UniversalType {
       defaultValue: defaultValue ?? this.defaultValue,
       isRequired: isRequired ?? this.isRequired,
       enumType: enumType ?? this.enumType,
-      arrayDepth: arrayDepth ?? this.arrayDepth,
+      wrappingCollections: wrappingCollections ?? this.wrappingCollections,
       nullable: nullable ?? this.nullable,
-      mapType: mapType ?? this.mapType,
+      min: min ?? this.min,
+      max: max ?? this.max,
+      minItems: minItems ?? this.minItems,
+      maxItems: maxItems ?? this.maxItems,
+      minLength: minLength ?? this.minLength,
+      maxLength: maxLength ?? this.maxLength,
+      pattern: pattern ?? this.pattern,
+      uniqueItems: uniqueItems ?? this.uniqueItems,
+      deprecated: deprecated ?? this.deprecated,
+      referencedNullable: referencedNullable ?? this.referencedNullable,
     );
   }
 
@@ -100,20 +140,29 @@ final class UniversalType {
 
   @override
   bool operator ==(Object other) =>
-      identical(this, other) ||
       other is UniversalType &&
-          runtimeType == other.runtimeType &&
-          type == other.type &&
-          name == other.name &&
-          description == other.description &&
-          format == other.format &&
-          jsonKey == other.jsonKey &&
-          defaultValue == other.defaultValue &&
-          isRequired == other.isRequired &&
-          enumType == other.enumType &&
-          arrayDepth == other.arrayDepth &&
-          nullable == other.nullable &&
-          mapType == other.mapType;
+      runtimeType == other.runtimeType &&
+      type == other.type &&
+      name == other.name &&
+      format == other.format &&
+      jsonKey == other.jsonKey &&
+      defaultValue == other.defaultValue &&
+      isRequired == other.isRequired &&
+      enumType == other.enumType &&
+      const DeepCollectionEquality().equals(
+        wrappingCollections,
+        other.wrappingCollections,
+      ) &&
+      nullable == other.nullable &&
+      min == other.min &&
+      max == other.max &&
+      minItems == other.minItems &&
+      maxItems == other.maxItems &&
+      minLength == other.minLength &&
+      maxLength == other.maxLength &&
+      pattern == other.pattern &&
+      uniqueItems == other.uniqueItems &&
+      deprecated == other.deprecated;
 
   @override
   int get hashCode =>
@@ -125,61 +174,35 @@ final class UniversalType {
       defaultValue.hashCode ^
       isRequired.hashCode ^
       enumType.hashCode ^
-      arrayDepth.hashCode ^
+      wrappingCollections.hashCode ^
       nullable.hashCode ^
-      mapType.hashCode;
+      min.hashCode ^
+      max.hashCode ^
+      minItems.hashCode ^
+      maxItems.hashCode ^
+      minLength.hashCode ^
+      maxLength.hashCode ^
+      pattern.hashCode ^
+      uniqueItems.hashCode ^
+      deprecated.hashCode;
 
   @override
-  String toString() =>
-      'UniversalType(\ntype: $type,\nname: $name,\ndescription: $description,\nformat: $format,\njsonKey: $jsonKey,\ndefaultValue: $defaultValue,\nisRequired: $isRequired,\nenumType: $enumType,\narrayDepth: $arrayDepth,\nnullable: $nullable\n, mapType: $mapType\n)';
-}
-
-/// Converts [UniversalType] to type from specified language
-extension UniversalTypeX on UniversalType {
-  /// Converts [UniversalType] to concrete type of certain [ProgrammingLanguage]
-  String toSuitableType(ProgrammingLanguage lang) {
-    if (arrayDepth == 0 && mapType == null) {
-      return _questionMark(lang);
-    }
-    final sb = StringBuffer();
-    for (var i = 0; i < arrayDepth; i++) {
-      sb.write('List<');
-    }
-    if (mapType != null) {
-      sb.write(_mapStart(lang));
-    }
-    sb.write(_questionMark(lang));
-    if (mapType != null) {
-      sb.write('>');
-    }
-    for (var i = 0; i < arrayDepth; i++) {
-      sb.write('>');
-    }
-    if (nullable || (!isRequired && defaultValue == null)) {
-      sb.write('?');
-    }
-    return sb.toString();
-  }
-
-  String _questionMark(ProgrammingLanguage lang) {
-    final questionMark =
-        isRequired && !nullable || arrayDepth > 0 || defaultValue != null
-            ? ''
-            : '?';
-    switch (lang) {
-      case ProgrammingLanguage.dart:
-        return type.toDartType(format) + questionMark;
-      case ProgrammingLanguage.kotlin:
-        return type.toKotlinType(format) + questionMark;
-    }
-  }
-
-  String _mapStart(ProgrammingLanguage lang) {
-    switch (lang) {
-      case ProgrammingLanguage.dart:
-        return 'Map<${mapType!.toDartType(format)}, ';
-      case ProgrammingLanguage.kotlin:
-        return 'Map<${mapType!.toKotlinType(format)}, ';
-    }
-  }
+  String toString() => 'UniversalType(type: $type, '
+      'name: $name, '
+      'format: $format, '
+      'jsonKey: $jsonKey, '
+      'defaultValue: $defaultValue, '
+      'isRequired: $isRequired, '
+      'enumType: $enumType, '
+      'wrappingCollections: $wrappingCollections, '
+      'nullable: $nullable, '
+      'min: $min, '
+      'max: $max, '
+      'minItems: $minItems, '
+      'maxItems: $maxItems, '
+      'minLength: $minLength, '
+      'maxLength: $maxLength, '
+      'pattern: $pattern, '
+      'uniqueItems: $uniqueItems, '
+      'deprecated: $deprecated)';
 }
