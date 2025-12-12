@@ -1775,7 +1775,7 @@ class OpenApiParser {
                     item2 is Map<String, dynamic> &&
                     item1.containsKey(_refConst) &&
                     item2.containsKey(_propertiesConst)) {
-                  final item1Type = _findType(item1);
+                  final item1Type = _findType(item1, isRequired: true);
                   final item1Definition = (_definitionFileContent[_definitionsConst]
                       as Map<String, dynamic>)[_formatRef(item1)];
                   if (item1Type.import != null &&
@@ -1790,7 +1790,7 @@ class OpenApiParser {
                             .containsKey(item2Properties.entries.first.key)) {
                       final item2Property =
                           item2Properties.entries.first.value as Map<String, dynamic>;
-                      final item2Type = _findType(item2Property);
+                      final item2Type = _findType(item2Property, isRequired: true);
                       ofImport = item1Type.import;
                       ofType = item1Type.type.copyWith(
                           nullable: true,

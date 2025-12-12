@@ -32,9 +32,7 @@ String dartRootClientTemplate({
       '${title ?? ''}${version != null ? ' `v$version`' : ''}';
 
   return '''
-${generatedFileComment(
-    markFileAsGenerated: markFileAsGenerated,
-  )}import 'package:injectable/injectable.dart';
+import 'package:injectable/injectable.dart';
 import 'package:rider/core/injector.dart';
 import 'package:rider/core/config/app_config.dart';
 ${_clientsImport(clientsNames, postfix, putClientsInFolder: putClientsInFolder, clientsNameMap: clientsNameMap)}import '../net/net_request.dart';
