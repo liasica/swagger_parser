@@ -18,6 +18,7 @@ class ParserConfig {
     this.includeTags = const <String>[],
     this.fallbackClient = 'fallback',
     this.inferRequiredFromNullable = false,
+    this.originalHttpResponse = false,
   });
 
   /// Specification file content as [String]
@@ -80,4 +81,8 @@ class ParserConfig {
   /// Properties without nullable: true in schema are marked as required.
   /// Only applies when schema has no explicit required array.
   final bool inferRequiredFromNullable;
+
+  /// DART ONLY
+  /// Optional. Set `true` to wrap all request return types with HttpResponse.
+  final bool originalHttpResponse;
 }

@@ -105,7 +105,7 @@ String _toClientRequest(
   // For binary responses, we need to use HttpResponse<List<int>> and add @DioResponseType
   final finalResponseType = isBinaryResponse
       ? 'HttpResponse<List<int>>'
-      : (originalHttpResponse ? 'HttpResponse<$responseType>' : responseType);
+      : (request.isOriginalHttpResponse ? 'HttpResponse<$responseType>' : responseType);
 
   // Add @DioResponseType(ResponseType.bytes) for binary responses - after @GET
   final dioResponseTypeAnnotation =
