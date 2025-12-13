@@ -1726,6 +1726,38 @@ class OpenApiParser {
           }
           // If there is more than one item, there is a union of types which dart might not natively support
           else if (otherItems.length > 1) {
+            // Find generic type in two-element allOf
+            if (map.containsKey(_allOfConst) && ofList.length == 2) {
+              final item1 = ofList[0];
+              final item2 = ofList[1];
+              if (item1 is Map<String, dynamic> &&
+                  item2 is Map<String, dynamic> &&
+                  item1.containsKey(_refConst) &&
+                  item2.containsKey(_propertiesConst)) {
+                final item1Type = _findType(item1, isRequired: isRequired);
+                final item1Definition = (_definitionFileContent[_definitionsConst]
+                    as Map<String, dynamic>)[_formatRef(item1)];
+                if (item1Type.import != null &&
+                    item1Definition is Map<String, dynamic> &&
+                    item1Definition.containsKey(_propertiesConst)) {
+                  final item1Properties = item1Definition[_propertiesConst];
+                  final item2Properties = item2[_propertiesConst];
+                  if (item1Properties is Map<String, dynamic> &&
+                      item2Properties is Map<String, dynamic> &&
+                      item2Properties.entries.length == 1 &&
+                      item1Properties
+                          .containsKey(item2Properties.entries.first.key)) {
+                    final item2Property =
+                        item2Properties.entries.first.value as Map<String, dynamic>;
+                    final item2Type = _findType(item2Property, isRequired: isRequired);
+                    ofImport = item1Type.import;
+                    ofType = item1Type.type.copyWith(
+                        nullable: true,
+                        type: '${item1Type.type.type}<${item2Type.type.type}>');
+                  }
+                }
+              }
+            }
             // It is possible that more cases have to be handled like
             // types:
             //   - null
@@ -1740,7 +1772,7 @@ class OpenApiParser {
             // At this point, we only explored a part of the schema so if the item is a ref, we won't be able to fully resolve the type
             // What we should do is create a new type that is a composition of all the object types in otherItems
             // Then we collect the refs and properties and store them in the UniversalComponentClass to be processed when we are done parsing the data classes.
-            if (map.containsKey(_allOfConst)) {
+            else if (map.containsKey(_allOfConst)) {
               final refs = <String>{};
               final parameters = <UniversalType>{};
               final imports = SplayTreeSet<String>();

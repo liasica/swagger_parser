@@ -27,7 +27,7 @@ String dartEnumDtoTemplate(
     final asyncImport = useFlutterCompute ? "import 'dart:async';\n\n" : '';
 
     final values =
-        '${enumClass.items.mapIndexed((i, e) => _enumValue(i, enumClass.type, e, jsonParam: jsonParam)).join(',')}${unknownEnumValue ? ',' : ';'}';
+        '${enumClass.items.mapIndexed((i, e) => _enumValue(i, enumClass.type, e, jsonParam: jsonParam)).join(',\n')}${unknownEnumValue ? ',\n' : ';'}';
 
     final enumBodyParts = [
       values,
@@ -218,8 +218,8 @@ String _generateFlutterComputeEnumSerializer(
   UniversalEnumClass enumClass,
 ) {
   final dartType = enumClass.type.toDartType();
-  // Note: Using object?.json instead of object?.toJson() because:
-  // - json field is always available when unknownEnumValue or enumsToJson is true
+  // Note: Using object?.name instead of object?.toJson() because:
+  // - name field is always available when unknownEnumValue or enumsToJson is true
   // - toJson() may not be generated (only when enumsToJson is true)
   return '''
 

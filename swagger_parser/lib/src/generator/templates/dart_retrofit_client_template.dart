@@ -26,7 +26,7 @@ String dartRetrofitClientTemplate({
 
   // Determine @RestApi annotation
   final restApiAnnotation = useFlutterCompute
-      ? '@RestApi(parser: Parser.FlutterCompute, baseUrl: AppConfig.apiUrl)'
+      ? '@RestApi(baseUrl: AppConfig.apiUrl, parser: Parser.FlutterCompute)'
       : '@RestApi(baseUrl: AppConfig.apiUrl)';
 
   // Flutter foundation import for compute function
@@ -123,7 +123,7 @@ String _toClientRequest(
 
   final sb = StringBuffer()
     ..write(
-      "  ${descriptionComment(request.description, tabForFirstLine: false, tab: '  ', end: '  ')}${request.isDeprecated ? "@Deprecated('This method is marked as deprecated')\n  " : ''}${_contentTypeHeader(request, defaultContentType)}@${request.requestType.name.toUpperCase()}('${request.route}')$dioResponseTypeAnnotation\n  Future<($finalResponseType, DioException?)> ${request.name}(",
+      "  ${descriptionComment(request.description, tabForFirstLine: false, tab: '  ', end: '  ')}${request.isDeprecated ? "@Deprecated('This method is marked as deprecated')\n  " : ''}${_contentTypeHeader(request, defaultContentType)}@${request.requestType.name.toUpperCase()}('${request.route}')$dioResponseTypeAnnotation\n  Future<($finalResponseType?, DioException?)> ${request.name}(",
     )
   ..write('{\n');
 
@@ -133,7 +133,10 @@ String _toClientRequest(
   for (final parameter in sortedByRequired) {
     sb.write('${_toParameter(parameter, useMultipartFile)}\n');
   }
+
+  // Always add toast visible header
   sb.write('    @Header(AppConstants.headerToastVisible) ToastVisible? toastVisible = ToastVisible.yes,\n');
+  
   if (addExtrasParameter) {
     sb.write(_addExtraParameter(defaultExtras));
   }
