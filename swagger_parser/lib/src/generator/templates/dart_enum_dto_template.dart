@@ -196,7 +196,7 @@ String _toJson(UniversalEnumClass enumClass, String className) {
 }
 
 String _toString() =>
-    '\n\n  @override\n  String toString() => json?.toString() ?? super.toString();';
+    '\n\n  @override\n  String toString() => name?.toString() ?? super.toString();';
 
 String _toStringDartMappable() =>
     '\n\n  @override\n  String toString() => toValue().toString();\n';
@@ -229,9 +229,9 @@ FutureOr<$className> deserialize$className($dartType json) => $className.fromJso
 FutureOr<List<$className>> deserialize${className}List(List<$dartType> json) =>
     json.map((e) => $className.fromJson(e)).toList();
 
-FutureOr<$dartType?> serialize$className($className? object) => object?.json;
+FutureOr<$dartType?> serialize$className($className? object) => object?.name;
 
 FutureOr<List<$dartType?>> serialize${className}List(List<$className>? objects) =>
-    objects?.map((e) => e.json).toList() ?? [];
+    objects?.map((e) => e.name).toList() ?? [];
 ''';
 }
